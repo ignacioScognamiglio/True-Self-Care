@@ -1,0 +1,160 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  // ═══ USUARIOS ═══
+  users: defineTable({
+    clerkId: v.string(),
+    email: v.string(),
+    name: v.string(),
+    avatar: v.optional(v.string()),
+    onboardingCompleted: v.boolean(),
+    createdAt: v.number(),
+    preferences: v.object({
+      activeModules: v.array(v.string()),
+      unitSystem: v.union(v.literal("metric"), v.literal("imperial")),
+      language: v.string(),
+      notificationsEnabled: v.boolean(),
+      wakeUpTime: v.optional(v.string()),
+      bedTime: v.optional(v.string()),
+    }),
+  })
+    .index("by_clerk_id", ["clerkId"])
+    .index("by_email", ["email"]),
+
+  // ═══ PERFILES DE SALUD ═══
+  healthProfiles: defineTable({
+    userId: v.id("users"),
+    age: v.optional(v.number()),
+    gender: v.optional(v.string()),
+    height: v.optional(v.number()),
+    weight: v.optional(v.number()),
+    skinType: v.optional(v.string()),
+    skinConcerns: v.optional(v.array(v.string())),
+    dietaryRestrictions: v.optional(v.array(v.string())),
+    allergies: v.optional(v.array(v.string())),
+    fitnessLevel: v.optional(v.string()),
+    healthGoals: v.optional(v.array(v.string())),
+    medicalConditions: v.optional(v.array(v.string())),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // ═══ ENTRADAS DE WELLNESS (polimórfica) ═══
+  wellnessEntries: defineTable({
+    userId: v.id("users"),
+    type: v.union(
+      v.literal("mood"),
+      v.literal("exercise"),
+      v.literal("nutrition"),
+      v.literal("sleep"),
+      v.literal("water"),
+      v.literal("skincare"),
+      v.literal("weight"),
+      v.literal("habit")
+    ),
+    data: v.any(),
+    timestamp: v.number(),
+    source: v.union(
+      v.literal("manual"),
+      v.literal("wearable"),
+      v.literal("ai")
+    ),
+  })
+    .index("by_user_type", ["userId", "type"])
+    .index("by_user_time", ["userId", "timestamp"])
+    .index("by_type_time", ["type", "timestamp"]),
+
+  // ═══ PLANES GENERADOS POR IA ═══
+  aiPlans: defineTable({
+    userId: v.id("users"),
+    type: v.union(
+      v.literal("daily"),
+      v.literal("meal"),
+      v.literal("workout"),
+      v.literal("skincare_routine"),
+      v.literal("sleep_routine"),
+      v.literal("weekly")
+    ),
+    content: v.any(),
+    status: v.union(
+      v.literal("active"),
+      v.literal("completed"),
+      v.literal("archived")
+    ),
+    generatedAt: v.number(),
+    expiresAt: v.optional(v.number()),
+  })
+    .index("by_user_type", ["userId", "type"])
+    .index("by_user_status", ["userId", "status"]),
+
+  // ═══ HÁBITOS ═══
+  habits: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    category: v.string(),
+    frequency: v.union(
+      v.literal("daily"),
+      v.literal("weekly"),
+      v.literal("custom")
+    ),
+    targetPerPeriod: v.number(),
+    currentStreak: v.number(),
+    longestStreak: v.number(),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // ═══ FOTOS DE PROGRESO ═══
+  progressPhotos: defineTable({
+    userId: v.id("users"),
+    type: v.union(v.literal("skin"), v.literal("body"), v.literal("food")),
+    storageId: v.string(),
+    aiAnalysis: v.optional(v.any()),
+    timestamp: v.number(),
+  })
+    .index("by_user_type", ["userId", "type"])
+    .index("by_user_time", ["userId", "timestamp"]),
+
+  // ═══ METAS ═══
+  goals: defineTable({
+    userId: v.id("users"),
+    category: v.string(),
+    title: v.string(),
+    targetValue: v.optional(v.number()),
+    currentValue: v.optional(v.number()),
+    unit: v.optional(v.string()),
+    deadline: v.optional(v.number()),
+    status: v.union(
+      v.literal("active"),
+      v.literal("completed"),
+      v.literal("paused")
+    ),
+    createdAt: v.number(),
+  }).index("by_user_category", ["userId", "category"]),
+
+  // ═══ NOTIFICACIONES ═══
+  notifications: defineTable({
+    userId: v.id("users"),
+    type: v.string(),
+    title: v.string(),
+    body: v.string(),
+    read: v.boolean(),
+    actionUrl: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user_read", ["userId", "read"])
+    .index("by_user_time", ["userId", "createdAt"]),
+
+  // ═══ BASE DE CONOCIMIENTO WELLNESS (para RAG) ═══
+  wellnessKnowledge: defineTable({
+    text: v.string(),
+    category: v.string(),
+    subcategory: v.optional(v.string()),
+    source: v.string(),
+    embedding: v.array(v.float64()),
+  }).vectorIndex("by_embedding", {
+    vectorField: "embedding",
+    dimensions: 1536,
+    filterFields: ["category"],
+  }),
+});
