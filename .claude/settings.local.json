@@ -4,7 +4,8 @@
       "Bash(cd:*)",
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs",
-      "Bash(npx create-next-app@latest:*)"
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npm install:*)"
     ]
   }
 }
