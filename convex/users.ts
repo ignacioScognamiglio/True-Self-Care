@@ -60,13 +60,11 @@ export const getCurrentUser = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
 
-    const user = await ctx.db
+    return ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) =>
         q.eq("clerkId", identity.subject)
       )
       .unique();
-
-    return user;
   },
 });

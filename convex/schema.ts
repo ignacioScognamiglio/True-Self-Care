@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // ═══ USUARIOS ═══
+  // ═══ USERS ═══
   users: defineTable({
     clerkId: v.string(),
     email: v.string(),
@@ -22,7 +22,7 @@ export default defineSchema({
     .index("by_clerk_id", ["clerkId"])
     .index("by_email", ["email"]),
 
-  // ═══ PERFILES DE SALUD ═══
+  // ═══ HEALTH PROFILES ═══
   healthProfiles: defineTable({
     userId: v.id("users"),
     age: v.optional(v.number()),
@@ -39,7 +39,7 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 
-  // ═══ ENTRADAS DE WELLNESS (polimórfica) ═══
+  // ═══ WELLNESS ENTRIES (polymorphic) ═══
   wellnessEntries: defineTable({
     userId: v.id("users"),
     type: v.union(
@@ -64,7 +64,7 @@ export default defineSchema({
     .index("by_user_time", ["userId", "timestamp"])
     .index("by_type_time", ["type", "timestamp"]),
 
-  // ═══ PLANES GENERADOS POR IA ═══
+  // ═══ AI-GENERATED PLANS ═══
   aiPlans: defineTable({
     userId: v.id("users"),
     type: v.union(
@@ -87,7 +87,7 @@ export default defineSchema({
     .index("by_user_type", ["userId", "type"])
     .index("by_user_status", ["userId", "status"]),
 
-  // ═══ HÁBITOS ═══
+  // ═══ HABITS ═══
   habits: defineTable({
     userId: v.id("users"),
     name: v.string(),
@@ -104,7 +104,7 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
 
-  // ═══ FOTOS DE PROGRESO ═══
+  // ═══ PROGRESS PHOTOS ═══
   progressPhotos: defineTable({
     userId: v.id("users"),
     type: v.union(v.literal("skin"), v.literal("body"), v.literal("food")),
@@ -115,7 +115,7 @@ export default defineSchema({
     .index("by_user_type", ["userId", "type"])
     .index("by_user_time", ["userId", "timestamp"]),
 
-  // ═══ METAS ═══
+  // ═══ GOALS ═══
   goals: defineTable({
     userId: v.id("users"),
     category: v.string(),
@@ -132,7 +132,7 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_user_category", ["userId", "category"]),
 
-  // ═══ NOTIFICACIONES ═══
+  // ═══ NOTIFICATIONS ═══
   notifications: defineTable({
     userId: v.id("users"),
     type: v.string(),
@@ -145,7 +145,7 @@ export default defineSchema({
     .index("by_user_read", ["userId", "read"])
     .index("by_user_time", ["userId", "createdAt"]),
 
-  // ═══ BASE DE CONOCIMIENTO WELLNESS (para RAG) ═══
+  // ═══ WELLNESS KNOWLEDGE BASE (for RAG) ═══
   wellnessKnowledge: defineTable({
     text: v.string(),
     category: v.string(),

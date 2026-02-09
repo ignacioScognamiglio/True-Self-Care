@@ -16,7 +16,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { sidebarNavigation, sidebarFooterNav, APP_NAME } from "@/lib/constants";
+import {
+  sidebarNavigation,
+  sidebarFooterNav,
+  isNavItemActive,
+  APP_NAME,
+} from "@/lib/constants";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -49,23 +54,19 @@ export function AppSidebar() {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => {
-                  const isActive =
-                    pathname === item.url ||
-                    (item.url !== "/dashboard" &&
-                      pathname.startsWith(item.url));
-
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link href={item.url}>
-                          <item.icon className="size-4" />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isNavItemActive(item, pathname)}
+                    >
+                      <Link href={item.url}>
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -74,20 +75,19 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          {sidebarFooterNav.map((item) => {
-            const isActive = pathname.startsWith(item.url);
-
-            return (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={isActive}>
-                  <Link href={item.url}>
-                    <item.icon className="size-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })}
+          {sidebarFooterNav.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                isActive={isNavItemActive(item, pathname)}
+              >
+                <Link href={item.url}>
+                  <item.icon className="size-4" />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-2 py-1.5">
               <UserButton

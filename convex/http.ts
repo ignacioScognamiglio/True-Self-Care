@@ -19,11 +19,13 @@ http.route({
       case "user.updated": {
         const { id, email_addresses, first_name, last_name, image_url } =
           event.data;
+        if (!id) break;
+
         const email = email_addresses?.[0]?.email_address ?? "";
         const name = [first_name, last_name].filter(Boolean).join(" ") || "User";
 
         await ctx.runMutation(internal.users.upsertFromClerk, {
-          clerkId: id!,
+          clerkId: id,
           email,
           name,
           avatar: image_url,
@@ -32,9 +34,9 @@ http.route({
       }
 
       case "user.deleted": {
-        const clerkId = event.data.id;
-        if (clerkId) {
-          await ctx.runMutation(internal.users.deleteFromClerk, { clerkId });
+        const { id } = event.data;
+        if (id) {
+          await ctx.runMutation(internal.users.deleteFromClerk, { clerkId: id });
         }
         break;
       }
@@ -49,7 +51,13 @@ http.route({
 
 type WebhookEvent = {
   type: string;
-  data: Record<string, unknown>;
+  data: {
+    id?: string;
+    email_addresses?: Array<{ email_address: string }>;
+    first_name?: string;
+    last_name?: string;
+    image_url?: string;
+  };
 };
 
 async function validateRequest(

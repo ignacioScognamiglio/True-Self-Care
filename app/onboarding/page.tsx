@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Leaf } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
 
 export default function OnboardingPage() {
   return (
@@ -9,7 +10,9 @@ export default function OnboardingPage() {
           <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Leaf className="size-6" />
           </div>
-          <CardTitle className="text-2xl">Welcome to True Self-Care</CardTitle>
+          <CardTitle className="text-2xl">
+            Welcome to {APP_NAME}
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-center text-muted-foreground">
           <p>

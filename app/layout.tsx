@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/convex-client-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "True Self-Care",
-  description: "Your AI-powered personal wellness companion",
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({

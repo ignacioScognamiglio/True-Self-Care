@@ -55,3 +55,22 @@ export const sidebarNavigation: NavGroup[] = [
 export const sidebarFooterNav: NavItem[] = [
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
+
+/** All navigation items flattened from groups and footer. */
+export const allNavItems: NavItem[] = [
+  ...sidebarNavigation.flatMap((group) => group.items),
+  ...sidebarFooterNav,
+];
+
+/** Check whether a nav item is active for the given pathname. */
+export function isNavItemActive(item: NavItem, pathname: string): boolean {
+  if (pathname === item.url) return true;
+  if (item.url === "/dashboard") return false;
+  return pathname.startsWith(item.url);
+}
+
+/** Resolve the page title from a pathname using the navigation config. */
+export function getPageTitle(pathname: string): string {
+  const match = allNavItems.find((item) => isNavItemActive(item, pathname));
+  return match?.title ?? "Dashboard";
+}

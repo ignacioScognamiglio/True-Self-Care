@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Leaf } from "lucide-react";
+import { APP_NAME } from "@/lib/constants";
 
 export default function LandingPage() {
   return (
@@ -9,7 +10,7 @@ export default function LandingPage() {
         <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
           <Leaf className="size-6" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight">True Self-Care</h1>
+        <h1 className="text-4xl font-bold tracking-tight">{APP_NAME}</h1>
       </div>
       <p className="max-w-md text-center text-lg text-muted-foreground">
         Your AI-powered personal wellness companion. Skincare, nutrition,
