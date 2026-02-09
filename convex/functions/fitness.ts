@@ -186,6 +186,65 @@ export const getTodayExerciseSummaryPublic = query({
   },
 });
 
+export const getExerciseHistoryInternal = internalQuery({
+  args: {
+    userId: v.id("users"),
+    days: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const numDays = args.days ?? 7;
+    const startTime = Date.now() - numDays * 24 * 60 * 60 * 1000;
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", args.userId).eq("type", "exercise")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), startTime))
+      .collect();
+
+    const dailyMap = new Map<
+      number,
+      { caloriesBurned: number; exerciseCount: number; volume: number; duration: number }
+    >();
+
+    for (const entry of entries) {
+      const dayKey = startOfDay(new Date(entry.timestamp)).getTime();
+      const existing = dailyMap.get(dayKey) ?? {
+        caloriesBurned: 0,
+        exerciseCount: 0,
+        volume: 0,
+        duration: 0,
+      };
+      const data = entry.data as any;
+      existing.caloriesBurned += data.caloriesBurned ?? 0;
+      existing.duration += data.duration ?? 0;
+      if (data.sets && data.reps && data.weight) {
+        existing.volume += data.sets * data.reps * data.weight;
+      }
+      existing.exerciseCount += 1;
+      dailyMap.set(dayKey, existing);
+    }
+
+    const result = [];
+    for (let i = numDays - 1; i >= 0; i--) {
+      const day = startOfDay(
+        new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+      ).getTime();
+      const data = dailyMap.get(day);
+      result.push({
+        date: day,
+        totalCaloriesBurned: data?.caloriesBurned ?? 0,
+        exerciseCount: data?.exerciseCount ?? 0,
+        totalVolume: data?.volume ?? 0,
+        totalDuration: data?.duration ?? 0,
+      });
+    }
+
+    return result;
+  },
+});
+
 export const getExerciseHistory = query({
   args: { days: v.optional(v.number()) },
   handler: async (ctx, args) => {
