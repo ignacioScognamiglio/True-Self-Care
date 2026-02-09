@@ -14,6 +14,7 @@ import type * as agents_safety from "../agents/safety.js";
 import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as functions_habits from "../functions/habits.js";
+import type * as functions_notifications from "../functions/notifications.js";
 import type * as functions_wellness from "../functions/wellness.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   crons: typeof crons;
   "functions/habits": typeof functions_habits;
+  "functions/notifications": typeof functions_notifications;
   "functions/wellness": typeof functions_wellness;
   http: typeof http;
   "lib/auth": typeof lib_auth;

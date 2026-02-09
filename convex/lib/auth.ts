@@ -9,13 +9,30 @@ export async function getAuthenticatedUser(ctx: { auth: any; db: any }) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Not authenticated");
 
-  const user = await ctx.db
+  const existing = await ctx.db
     .query("users")
     .withIndex("by_clerk_id", (q: any) => q.eq("clerkId", identity.subject))
     .unique();
 
-  if (!user) throw new Error("User not found");
-  return user;
+  if (existing) return existing;
+
+  // Auto-create user if Clerk webhook hasn't synced yet
+  const userId = await ctx.db.insert("users", {
+    clerkId: identity.subject,
+    email: identity.email ?? "",
+    name: identity.name ?? "User",
+    avatar: identity.pictureUrl,
+    onboardingCompleted: false,
+    createdAt: Date.now(),
+    preferences: {
+      activeModules: [],
+      unitSystem: "metric" as const,
+      language: "es",
+      notificationsEnabled: true,
+    },
+  });
+
+  return (await ctx.db.get(userId))!;
 }
 
 /**

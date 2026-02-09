@@ -1,5 +1,5 @@
 import { Agent } from "@convex-dev/agent";
-import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
 import { components } from "../_generated/api";
 import { HABITS_SYSTEM_PROMPT } from "../prompts/habits";
 import {
@@ -12,7 +12,7 @@ import {
 
 export const habitsAgent = new Agent(components.agent, {
   name: "Especialista en Habitos",
-  languageModel: anthropic("claude-haiku-4-5-20251001"),
+  languageModel: google("gemini-2.5-flash-lite"),
   instructions: HABITS_SYSTEM_PROMPT,
   tools: { logWater, trackHabit, getHabits, getWaterIntake, createHabit },
 });

@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/shared/mode-toggle";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { getPageTitle } from "@/lib/constants";
 
 export function DashboardHeader() {
@@ -27,7 +28,8 @@ export function DashboardHeader() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-1">
+        <NotificationBell />
         <ModeToggle />
       </div>
     </header>

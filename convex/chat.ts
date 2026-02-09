@@ -4,6 +4,7 @@ import { internal, components } from "./_generated/api";
 import { paginationOptsValidator } from "convex/server";
 import { listUIMessages, syncStreams, vStreamArgs } from "@convex-dev/agent";
 import { orchestratorAgent } from "./agents/orchestrator";
+import { safetyAgent } from "./agents/safety";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "./lib/auth";
 
 // ═══ MUTATIONS ═══
@@ -65,6 +66,53 @@ export const streamAsync = internalAction({
       }
     );
     await result.consumeStream();
+
+    // Safety agent post-processing
+    const text = await result.text;
+    if (text && text.length >= 20) {
+      try {
+        const safetyResult = await safetyAgent.generateText(
+          ctx,
+          {},
+          {
+            prompt: `Evalua la siguiente respuesta del orquestador y responde UNICAMENTE con JSON valido (sin markdown, sin backticks):
+{"action": "approve" | "modify" | "block", "modifiedResponse": "texto modificado si action es modify o block"}
+
+Respuesta a evaluar:
+${text}`,
+          } as any,
+          {
+            storageOptions: { saveMessages: "none" },
+          }
+        );
+
+        const safetyText = await safetyResult.text;
+        const parsed = JSON.parse(safetyText);
+
+        if (parsed.action === "modify" || parsed.action === "block") {
+          const savedMessages = result.savedMessages;
+          const assistantMessage = savedMessages
+            ?.filter((m: any) => m.message?.role === "assistant")
+            .pop();
+
+          if (assistantMessage) {
+            await orchestratorAgent.updateMessage(ctx, {
+              messageId: assistantMessage._id,
+              patch: {
+                message: {
+                  role: "assistant" as const,
+                  content: parsed.modifiedResponse || text,
+                },
+                status: "success" as const,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        // Fail-open: if safety check fails, keep original message
+        console.error("Safety agent error:", e);
+      }
+    }
   },
 });
 
