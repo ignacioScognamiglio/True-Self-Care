@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { query, mutation, internalAction } from "./_generated/server";
 import { internal, components } from "./_generated/api";
 import { paginationOptsValidator } from "convex/server";
-import { listMessages } from "@convex-dev/agent";
+import { listUIMessages, syncStreams, vStreamArgs } from "@convex-dev/agent";
 import { orchestratorAgent } from "./agents/orchestrator";
 import { getAuthenticatedUser } from "./lib/auth";
 
@@ -91,11 +91,17 @@ export const listThreadMessages = query({
   args: {
     threadId: v.string(),
     paginationOpts: paginationOptsValidator,
+    streamArgs: vStreamArgs,
   },
   handler: async (ctx, args) => {
-    return await listMessages(ctx, components.agent, {
+    const paginated = await listUIMessages(ctx, components.agent, {
       threadId: args.threadId,
       paginationOpts: args.paginationOpts,
     });
+    const streams = await syncStreams(ctx, components.agent, {
+      threadId: args.threadId,
+      streamArgs: args.streamArgs,
+    });
+    return { ...paginated, streams };
   },
 });

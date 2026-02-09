@@ -1,14 +1,55 @@
+"use client";
+
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, Moon, SmilePlus, Target } from "lucide-react";
 
-const quickStats = [
-  { title: "Hydration", value: "—", icon: Droplets, color: "text-wellness-hydration" },
-  { title: "Sleep", value: "—", icon: Moon, color: "text-wellness-sleep" },
-  { title: "Mood", value: "—", icon: SmilePlus, color: "text-wellness-mental" },
-  { title: "Habits", value: "—", icon: Target, color: "text-wellness-fitness" },
-];
+function formatMl(ml: number) {
+  return ml >= 1000 ? `${(ml / 1000).toFixed(1)}L` : `${ml}ml`;
+}
 
 export default function DashboardPage() {
+  const waterIntake = useQuery(api.functions.wellness.getTodayWaterIntakePublic);
+
+  const hydrationValue = waterIntake
+    ? `${formatMl(waterIntake.totalMl)} / 2.5L`
+    : "\u2014";
+  const hydrationSub = waterIntake
+    ? `${Math.min(100, Math.round((waterIntake.totalMl / 2500) * 100))}% de tu meta`
+    : "Start tracking to see data";
+
+  const quickStats = [
+    {
+      title: "Hydration",
+      value: hydrationValue,
+      sub: hydrationSub,
+      icon: Droplets,
+      color: "text-wellness-hydration",
+    },
+    {
+      title: "Sleep",
+      value: "\u2014",
+      sub: "Start tracking to see data",
+      icon: Moon,
+      color: "text-wellness-sleep",
+    },
+    {
+      title: "Mood",
+      value: "\u2014",
+      sub: "Start tracking to see data",
+      icon: SmilePlus,
+      color: "text-wellness-mental",
+    },
+    {
+      title: "Habits",
+      value: "\u2014",
+      sub: "Start tracking to see data",
+      icon: Target,
+      color: "text-wellness-fitness",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -17,7 +58,6 @@ export default function DashboardPage() {
           Your personalized wellness overview
         </p>
       </div>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {quickStats.map((stat) => (
           <Card key={stat.title}>
@@ -29,9 +69,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                Start tracking to see data
-              </p>
+              <p className="text-xs text-muted-foreground">{stat.sub}</p>
             </CardContent>
           </Card>
         ))}

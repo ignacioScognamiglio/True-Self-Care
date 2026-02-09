@@ -6,7 +6,7 @@ import {
   internalQuery,
 } from "../_generated/server";
 import { startOfDay } from "date-fns";
-import { getAuthenticatedUser } from "../lib/auth";
+import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 
 // ═══ MUTATIONS ═══
 
@@ -82,7 +82,9 @@ export const getTodayWaterIntake = internalQuery({
 export const getTodayWaterIntakePublic = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
+
     const todayStart = startOfDay(new Date()).getTime();
 
     const entries = await ctx.db
@@ -105,7 +107,8 @@ export const getTodayWaterIntakePublic = query({
 export const getWaterHistory = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
     const entries = await ctx.db
@@ -133,6 +136,24 @@ export const getWaterHistory = query({
     }
 
     return result;
+  },
+});
+
+export const getTodayWaterEntries = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
+    const todayStart = startOfDay(new Date()).getTime();
+
+    return await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "water")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), todayStart))
+      .order("desc")
+      .collect();
   },
 });
 
