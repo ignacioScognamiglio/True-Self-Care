@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, Moon, SmilePlus, Target } from "lucide-react";
+import { Droplets, UtensilsCrossed, Dumbbell, Target } from "lucide-react";
 
 
 function formatMl(ml: number) {
@@ -13,13 +13,31 @@ function formatMl(ml: number) {
 export default function DashboardPage() {
   const waterIntake = useQuery(api.functions.wellness.getTodayWaterIntakePublic);
   const habitSummary = useQuery(api.functions.habits.getTodayCompletionsSummary);
+  const nutritionSummary = useQuery(api.functions.nutrition.getTodayNutritionSummaryPublic);
+  const exerciseSummary = useQuery(api.functions.fitness.getTodayExerciseSummaryPublic);
 
   const hydrationValue = waterIntake
     ? `${formatMl(waterIntake.totalMl)} / 2.5L`
     : "\u2014";
   const hydrationSub = waterIntake
     ? `${Math.min(100, Math.round((waterIntake.totalMl / 2500) * 100))}% de tu meta`
-    : "Start tracking to see data";
+    : "Empieza a registrar";
+
+  const nutritionValue = nutritionSummary
+    ? `${nutritionSummary.totalCalories} kcal`
+    : "\u2014";
+  const nutritionSub = nutritionSummary
+    ? `${nutritionSummary.mealCount} comida${nutritionSummary.mealCount !== 1 ? "s" : ""} | P:${nutritionSummary.totalProtein}g`
+    : "Empieza a registrar";
+
+  const fitnessValue = exerciseSummary
+    ? `${exerciseSummary.exerciseCount} ejercicio${exerciseSummary.exerciseCount !== 1 ? "s" : ""}`
+    : "\u2014";
+  const fitnessSub = exerciseSummary
+    ? exerciseSummary.totalCaloriesBurned > 0
+      ? `${exerciseSummary.totalCaloriesBurned} kcal quemadas`
+      : "Entrena hoy para ver datos"
+    : "Empieza a registrar";
 
   const habitsValue = habitSummary
     ? `${habitSummary.completedToday}/${habitSummary.total}`
@@ -28,36 +46,36 @@ export default function DashboardPage() {
     ? habitSummary.bestCurrentStreak > 0
       ? `Mejor racha: ${habitSummary.bestCurrentStreak} dias`
       : "Completa habitos para iniciar racha"
-    : "Start tracking to see data";
+    : "Empieza a registrar";
 
   const quickStats = [
     {
-      title: "Hydration",
+      title: "Hidratacion",
       value: hydrationValue,
       sub: hydrationSub,
       icon: Droplets,
       color: "text-wellness-hydration",
     },
     {
-      title: "Sleep",
-      value: "\u2014",
-      sub: "Start tracking to see data",
-      icon: Moon,
-      color: "text-wellness-sleep",
+      title: "Nutricion",
+      value: nutritionValue,
+      sub: nutritionSub,
+      icon: UtensilsCrossed,
+      color: "text-orange-500",
     },
     {
-      title: "Mood",
-      value: "\u2014",
-      sub: "Start tracking to see data",
-      icon: SmilePlus,
-      color: "text-wellness-mental",
+      title: "Fitness",
+      value: fitnessValue,
+      sub: fitnessSub,
+      icon: Dumbbell,
+      color: "text-wellness-fitness",
     },
     {
-      title: "Habits",
+      title: "Habitos",
       value: habitsValue,
       sub: habitsSub,
       icon: Target,
-      color: "text-wellness-fitness",
+      color: "text-purple-500",
     },
   ];
 

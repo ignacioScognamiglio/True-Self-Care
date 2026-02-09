@@ -9,11 +9,28 @@ import {
   getWaterIntake,
   createHabit,
 } from "../tools/habitTools";
+import {
+  logMeal,
+  analyzeFoodImage,
+  createMealPlan,
+  getNutritionSummary,
+} from "../tools/nutritionTools";
+import {
+  logExercise,
+  createWorkoutPlan,
+  adjustIntensity,
+  getExerciseSummary,
+  getWorkoutHistory,
+} from "../tools/fitnessTools";
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
   languageModel: google("gemini-2.5-flash"),
   instructions: ORCHESTRATOR_SYSTEM_PROMPT,
-  tools: { logWater, trackHabit, getHabits, getWaterIntake, createHabit },
+  tools: {
+    logWater, trackHabit, getHabits, getWaterIntake, createHabit,
+    logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary,
+    logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
+  },
   maxSteps: 3,
 });

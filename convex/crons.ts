@@ -21,4 +21,22 @@ crons.daily(
   internal.reminders.resetMissedStreaks
 );
 
+crons.daily(
+  "nutrition-lunch-reminder",
+  { hourUTC: 15, minuteUTC: 0 },
+  internal.reminders.checkNutritionLogging
+);
+
+crons.daily(
+  "nutrition-dinner-reminder",
+  { hourUTC: 22, minuteUTC: 0 },
+  internal.reminders.checkNutritionLogging
+);
+
+crons.daily(
+  "workout-reminder",
+  { hourUTC: 21, minuteUTC: 0 },
+  internal.reminders.checkWorkoutReminder
+);
+
 export default crons;

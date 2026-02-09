@@ -144,17 +144,4 @@ export default defineSchema({
   })
     .index("by_user_read", ["userId", "read"])
     .index("by_user_time", ["userId", "createdAt"]),
-
-  // ═══ WELLNESS KNOWLEDGE BASE (for RAG) ═══
-  wellnessKnowledge: defineTable({
-    text: v.string(),
-    category: v.string(),
-    subcategory: v.optional(v.string()),
-    source: v.string(),
-    embedding: v.array(v.float64()),
-  }).vectorIndex("by_embedding", {
-    vectorField: "embedding",
-    dimensions: 1536,
-    filterFields: ["category"],
-  }),
 });
