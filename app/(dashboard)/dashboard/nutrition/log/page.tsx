@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -18,6 +18,14 @@ import {
 import { FoodAnalysisResult } from "@/components/wellness/nutrition/food-analysis-result";
 
 export default function NutritionLogPage() {
+  return (
+    <Suspense fallback={<div className="flex h-40 items-center justify-center text-sm text-muted-foreground">Cargando...</div>}>
+      <NutritionLogContent />
+    </Suspense>
+  );
+}
+
+function NutritionLogContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const defaultTab = searchParams.get("mode") === "photo" ? "photo" : "manual";

@@ -10,6 +10,7 @@
 
 import type * as agents_fitness from "../agents/fitness.js";
 import type * as agents_habits from "../agents/habits.js";
+import type * as agents_mental from "../agents/mental.js";
 import type * as agents_nutrition from "../agents/nutrition.js";
 import type * as agents_orchestrator from "../agents/orchestrator.js";
 import type * as agents_safety from "../agents/safety.js";
@@ -19,6 +20,7 @@ import type * as functions_files from "../functions/files.js";
 import type * as functions_fitness from "../functions/fitness.js";
 import type * as functions_foodAnalysis from "../functions/foodAnalysis.js";
 import type * as functions_habits from "../functions/habits.js";
+import type * as functions_mental from "../functions/mental.js";
 import type * as functions_notifications from "../functions/notifications.js";
 import type * as functions_nutrition from "../functions/nutrition.js";
 import type * as functions_plans from "../functions/plans.js";
@@ -27,12 +29,14 @@ import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as prompts_fitness from "../prompts/fitness.js";
 import type * as prompts_habits from "../prompts/habits.js";
+import type * as prompts_mental from "../prompts/mental.js";
 import type * as prompts_nutrition from "../prompts/nutrition.js";
 import type * as prompts_orchestrator from "../prompts/orchestrator.js";
 import type * as prompts_safety from "../prompts/safety.js";
 import type * as reminders from "../reminders.js";
 import type * as tools_fitnessTools from "../tools/fitnessTools.js";
 import type * as tools_habitTools from "../tools/habitTools.js";
+import type * as tools_mentalHealthTools from "../tools/mentalHealthTools.js";
 import type * as tools_nutritionTools from "../tools/nutritionTools.js";
 import type * as users from "../users.js";
 
@@ -45,6 +49,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   "agents/fitness": typeof agents_fitness;
   "agents/habits": typeof agents_habits;
+  "agents/mental": typeof agents_mental;
   "agents/nutrition": typeof agents_nutrition;
   "agents/orchestrator": typeof agents_orchestrator;
   "agents/safety": typeof agents_safety;
@@ -54,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   "functions/fitness": typeof functions_fitness;
   "functions/foodAnalysis": typeof functions_foodAnalysis;
   "functions/habits": typeof functions_habits;
+  "functions/mental": typeof functions_mental;
   "functions/notifications": typeof functions_notifications;
   "functions/nutrition": typeof functions_nutrition;
   "functions/plans": typeof functions_plans;
@@ -62,12 +68,14 @@ declare const fullApi: ApiFromModules<{
   "lib/auth": typeof lib_auth;
   "prompts/fitness": typeof prompts_fitness;
   "prompts/habits": typeof prompts_habits;
+  "prompts/mental": typeof prompts_mental;
   "prompts/nutrition": typeof prompts_nutrition;
   "prompts/orchestrator": typeof prompts_orchestrator;
   "prompts/safety": typeof prompts_safety;
   reminders: typeof reminders;
   "tools/fitnessTools": typeof tools_fitnessTools;
   "tools/habitTools": typeof tools_habitTools;
+  "tools/mentalHealthTools": typeof tools_mentalHealthTools;
   "tools/nutritionTools": typeof tools_nutritionTools;
   users: typeof users;
 }>;

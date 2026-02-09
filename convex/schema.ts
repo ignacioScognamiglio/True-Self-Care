@@ -44,6 +44,7 @@ export default defineSchema({
     userId: v.id("users"),
     type: v.union(
       v.literal("mood"),
+      v.literal("journal"),
       v.literal("exercise"),
       v.literal("nutrition"),
       v.literal("sleep"),
