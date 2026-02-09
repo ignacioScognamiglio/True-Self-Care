@@ -16,8 +16,12 @@ import { ChatInput } from "./chat-input";
 const SUGGESTIONS = [
   "Quiero crear un nuevo habito",
   "Cuanta agua debo tomar hoy?",
-  "Ayudame a mantener mis streaks",
-  "Que habitos me recomiendas?",
+  "Registra que almorce una ensalada cesar",
+  "Cuantas calorias llevo hoy?",
+  "Creame un plan de comidas semanal",
+  "Hice 4 series de press banca con 80kg",
+  "Creame una rutina de entrenamiento",
+  "Cuales son mis personal records?",
 ] as const;
 
 export function ChatContainer() {
@@ -117,7 +121,7 @@ function EmptyState({
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2">
-        {SUGGESTIONS.map((suggestion) => (
+        {SUGGESTIONS.slice(0, 4).map((suggestion) => (
           <Button
             key={suggestion}
             variant="outline"

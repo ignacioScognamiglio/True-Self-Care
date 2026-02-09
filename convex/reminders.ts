@@ -83,6 +83,93 @@ export const checkPendingHabits = internalMutation({
   },
 });
 
+export const checkNutritionLogging = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const todayStart = startOfDay(new Date()).getTime();
+
+    for (const user of users) {
+      if (!user.preferences?.notificationsEnabled) continue;
+      if (!user.preferences?.activeModules?.includes("nutrition")) continue;
+
+      const meals = await ctx.db
+        .query("wellnessEntries")
+        .withIndex("by_user_type", (q) =>
+          q.eq("userId", user._id).eq("type", "nutrition")
+        )
+        .filter((q) => q.gte(q.field("timestamp"), todayStart))
+        .collect();
+
+      if (meals.length === 0) {
+        await ctx.db.insert("notifications", {
+          userId: user._id,
+          type: "nutrition_reminder",
+          title: "Registro nutricional",
+          body: "No olvides registrar tus comidas de hoy",
+          read: false,
+          actionUrl: "/dashboard/nutrition",
+          createdAt: Date.now(),
+        });
+      } else if (meals.length < 3) {
+        await ctx.db.insert("notifications", {
+          userId: user._id,
+          type: "nutrition_reminder",
+          title: "Registro nutricional",
+          body: `Llevas ${meals.length} comida${meals.length > 1 ? "s" : ""} registrada${meals.length > 1 ? "s" : ""} hoy. Recorda registrar las que faltan.`,
+          read: false,
+          actionUrl: "/dashboard/nutrition",
+          createdAt: Date.now(),
+        });
+      }
+    }
+  },
+});
+
+export const checkWorkoutReminder = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const todayStart = startOfDay(new Date()).getTime();
+
+    for (const user of users) {
+      if (!user.preferences?.notificationsEnabled) continue;
+
+      // Check if user has an active workout plan
+      const activePlan = await ctx.db
+        .query("aiPlans")
+        .withIndex("by_user_type", (q) =>
+          q.eq("userId", user._id).eq("type", "workout")
+        )
+        .filter((q) => q.eq(q.field("status"), "active"))
+        .first();
+
+      if (!activePlan) continue;
+
+      // Check if already exercised today
+      const todayExercises = await ctx.db
+        .query("wellnessEntries")
+        .withIndex("by_user_type", (q) =>
+          q.eq("userId", user._id).eq("type", "exercise")
+        )
+        .filter((q) => q.gte(q.field("timestamp"), todayStart))
+        .first();
+
+      if (!todayExercises) {
+        await ctx.db.insert("notifications", {
+          userId: user._id,
+          type: "workout_reminder",
+          title: "Recordatorio de entrenamiento",
+          body: "Hoy toca entrenar! No olvides tu sesion de ejercicio.",
+          read: false,
+          actionUrl: "/dashboard/fitness",
+          createdAt: Date.now(),
+        });
+      }
+    }
+  },
+});
+
 export const resetMissedStreaks = internalMutation({
   args: {},
   handler: async (ctx) => {

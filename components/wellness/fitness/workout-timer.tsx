@@ -53,10 +53,7 @@ export function WorkoutTimer({
 
   // Session timer: counts up
   useEffect(() => {
-    if (mode !== "session" || !isRunning || paused) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
+    if (mode !== "session" || !isRunning || paused) return;
 
     intervalRef.current = setInterval(() => {
       setElapsed((prev) => prev + 1);
@@ -69,10 +66,7 @@ export function WorkoutTimer({
 
   // Rest timer: counts down
   useEffect(() => {
-    if (mode !== "rest" || !isRunning || paused) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
+    if (mode !== "rest" || !isRunning || paused) return;
 
     intervalRef.current = setInterval(() => {
       setRemaining((prev) => {
