@@ -7,7 +7,7 @@ import {
 } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 import { startOfDay, isToday, isYesterday } from "date-fns";
-import { getAuthenticatedUser } from "../lib/auth";
+import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 
 // ═══ SHARED VALIDATORS ═══
 
@@ -177,13 +177,128 @@ export const getUserHabits = internalQuery({
 export const getUserHabitsPublic = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     return await ctx.db
       .query("habits")
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .filter((q) => q.eq(q.field("isActive"), true))
       .collect();
+  },
+});
+
+export const completeHabitPublic = mutation({
+  args: { habitId: v.id("habits") },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUser(ctx);
+    const habit = await getOwnedHabit(ctx, args.habitId, user._id);
+
+    const todayStart = startOfDay(new Date()).getTime();
+
+    const alreadyDone = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "habit")
+      )
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("data.habitId"), args.habitId),
+          q.gte(q.field("timestamp"), todayStart)
+        )
+      )
+      .first();
+
+    if (alreadyDone) {
+      return { habitId: args.habitId, currentStreak: habit.currentStreak, longestStreak: habit.longestStreak, alreadyCompleted: true };
+    }
+
+    const lastCompletion = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "habit")
+      )
+      .filter((q) => q.eq(q.field("data.habitId"), args.habitId))
+      .order("desc")
+      .first();
+
+    let newStreak = 1;
+    if (lastCompletion) {
+      const lastDate = new Date(lastCompletion.timestamp);
+      if (isYesterday(lastDate)) {
+        newStreak = habit.currentStreak + 1;
+      }
+    }
+
+    const newLongest = Math.max(newStreak, habit.longestStreak);
+
+    await ctx.db.insert("wellnessEntries", {
+      userId: user._id,
+      type: "habit",
+      data: { habitId: args.habitId, habitName: habit.name },
+      timestamp: Date.now(),
+      source: "manual",
+    });
+
+    await ctx.db.patch(args.habitId, {
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+    });
+
+    return { habitId: args.habitId, currentStreak: newStreak, longestStreak: newLongest, alreadyCompleted: false };
+  },
+});
+
+export const getTodayCompletedHabitIds = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
+    const todayStart = startOfDay(new Date()).getTime();
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "habit")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), todayStart))
+      .collect();
+
+    return entries.map((e: any) => e.data.habitId as string);
+  },
+});
+
+export const getTodayCompletionsSummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return { total: 0, completedToday: 0, bestCurrentStreak: 0 };
+
+    const habits = await ctx.db
+      .query("habits")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
+
+    const todayStart = startOfDay(new Date()).getTime();
+
+    const todayEntries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "habit")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), todayStart))
+      .collect();
+
+    const completedIds = new Set(todayEntries.map((e: any) => e.data.habitId as string));
+    const completedToday = habits.filter((h) => completedIds.has(h._id)).length;
+    const bestCurrentStreak = habits.reduce((max, h) => Math.max(max, h.currentStreak), 0);
+
+    return {
+      total: habits.length,
+      completedToday,
+      bestCurrentStreak,
+    };
   },
 });
 

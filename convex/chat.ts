@@ -4,7 +4,7 @@ import { internal, components } from "./_generated/api";
 import { paginationOptsValidator } from "convex/server";
 import { listUIMessages, syncStreams, vStreamArgs } from "@convex-dev/agent";
 import { orchestratorAgent } from "./agents/orchestrator";
-import { getAuthenticatedUser } from "./lib/auth";
+import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "./lib/auth";
 
 // ═══ MUTATIONS ═══
 
@@ -73,7 +73,8 @@ export const streamAsync = internalAction({
 export const getUserThreads = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     const result = await ctx.runQuery(
       components.agent.threads.listThreadsByUserId,

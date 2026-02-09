@@ -7,7 +7,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Target, Droplets } from "lucide-react";
+import { Droplets } from "lucide-react";
+import { HabitStats } from "@/components/wellness/habits/habit-stats";
+import { HabitList } from "@/components/wellness/habits/habit-list";
 import { WaterTracker } from "@/components/wellness/hydration/water-tracker";
 import { QuickAddButtons } from "@/components/wellness/hydration/quick-add-buttons";
 import { TodayLog } from "@/components/wellness/hydration/today-log";
@@ -17,21 +19,14 @@ export default function HabitsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="text-2xl font-bold tracking-tight">Habits</h2>
-        <p className="text-muted-foreground">Build and track daily habits</p>
+        <h2 className="text-2xl font-bold tracking-tight">Habitos</h2>
+        <p className="text-muted-foreground">
+          Construye y rastrea tus habitos diarios
+        </p>
       </header>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="size-5" />
-            Habits Tracker
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-muted-foreground">
-          Habit tracking coming in the next update
-        </CardContent>
-      </Card>
+      <HabitStats />
+      <HabitList />
 
       <Separator />
 

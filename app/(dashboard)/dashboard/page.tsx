@@ -5,18 +5,29 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, Moon, SmilePlus, Target } from "lucide-react";
 
+
 function formatMl(ml: number) {
   return ml >= 1000 ? `${(ml / 1000).toFixed(1)}L` : `${ml}ml`;
 }
 
 export default function DashboardPage() {
   const waterIntake = useQuery(api.functions.wellness.getTodayWaterIntakePublic);
+  const habitSummary = useQuery(api.functions.habits.getTodayCompletionsSummary);
 
   const hydrationValue = waterIntake
     ? `${formatMl(waterIntake.totalMl)} / 2.5L`
     : "\u2014";
   const hydrationSub = waterIntake
     ? `${Math.min(100, Math.round((waterIntake.totalMl / 2500) * 100))}% de tu meta`
+    : "Start tracking to see data";
+
+  const habitsValue = habitSummary
+    ? `${habitSummary.completedToday}/${habitSummary.total}`
+    : "\u2014";
+  const habitsSub = habitSummary
+    ? habitSummary.bestCurrentStreak > 0
+      ? `Mejor racha: ${habitSummary.bestCurrentStreak} dias`
+      : "Completa habitos para iniciar racha"
     : "Start tracking to see data";
 
   const quickStats = [
@@ -43,8 +54,8 @@ export default function DashboardPage() {
     },
     {
       title: "Habits",
-      value: "\u2014",
-      sub: "Start tracking to see data",
+      value: habitsValue,
+      sub: habitsSub,
       icon: Target,
       color: "text-wellness-fitness",
     },
