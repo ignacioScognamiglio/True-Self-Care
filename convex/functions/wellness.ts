@@ -1,0 +1,170 @@
+import { v } from "convex/values";
+import {
+  query,
+  mutation,
+  internalMutation,
+  internalQuery,
+} from "../_generated/server";
+import { startOfDay } from "date-fns";
+import { getAuthenticatedUser } from "../lib/auth";
+
+// ═══ MUTATIONS ═══
+
+export const logWaterEntry = internalMutation({
+  args: {
+    userId: v.id("users"),
+    amount: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("wellnessEntries", {
+      userId: args.userId,
+      type: "water",
+      data: { amount: args.amount },
+      timestamp: Date.now(),
+      source: "ai",
+    });
+  },
+});
+
+export const logWaterEntryPublic = mutation({
+  args: { amount: v.number() },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUser(ctx);
+
+    return await ctx.db.insert("wellnessEntries", {
+      userId: user._id,
+      type: "water",
+      data: { amount: args.amount },
+      timestamp: Date.now(),
+      source: "manual",
+    });
+  },
+});
+
+export const deleteWaterEntry = mutation({
+  args: { entryId: v.id("wellnessEntries") },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUser(ctx);
+    const entry = await ctx.db.get(args.entryId);
+
+    if (!entry || entry.userId !== user._id || entry.type !== "water") {
+      throw new Error("Entry not found");
+    }
+
+    await ctx.db.delete(args.entryId);
+  },
+});
+
+// ═══ QUERIES ═══
+
+export const getTodayWaterIntake = internalQuery({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const todayStart = startOfDay(new Date()).getTime();
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", args.userId).eq("type", "water")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), todayStart))
+      .collect();
+
+    const totalMl = entries.reduce(
+      (sum, entry) => sum + (entry.data?.amount ?? 0),
+      0
+    );
+
+    return { totalMl, entries: entries.length };
+  },
+});
+
+export const getTodayWaterIntakePublic = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUser(ctx);
+    const todayStart = startOfDay(new Date()).getTime();
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "water")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), todayStart))
+      .collect();
+
+    const totalMl = entries.reduce(
+      (sum, entry) => sum + (entry.data?.amount ?? 0),
+      0
+    );
+
+    return { totalMl, entries: entries.length };
+  },
+});
+
+export const getWaterHistory = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUser(ctx);
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "water")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), sevenDaysAgo))
+      .collect();
+
+    // Group by day
+    const dailyMap = new Map<number, number>();
+    for (const entry of entries) {
+      const dayKey = startOfDay(new Date(entry.timestamp)).getTime();
+      dailyMap.set(dayKey, (dailyMap.get(dayKey) ?? 0) + (entry.data?.amount ?? 0));
+    }
+
+    // Build array for last 7 days
+    const result = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = startOfDay(
+        new Date(Date.now() - i * 24 * 60 * 60 * 1000)
+      ).getTime();
+      result.push({ date: day, totalMl: dailyMap.get(day) ?? 0 });
+    }
+
+    return result;
+  },
+});
+
+export const getWellnessEntriesByType = query({
+  args: {
+    type: v.union(
+      v.literal("mood"),
+      v.literal("exercise"),
+      v.literal("nutrition"),
+      v.literal("sleep"),
+      v.literal("water"),
+      v.literal("skincare"),
+      v.literal("weight"),
+      v.literal("habit")
+    ),
+    startDate: v.number(),
+    endDate: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUser(ctx);
+
+    return await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", args.type)
+      )
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("timestamp"), args.startDate),
+          q.lte(q.field("timestamp"), args.endDate)
+        )
+      )
+      .collect();
+  },
+});

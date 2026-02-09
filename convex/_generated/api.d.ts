@@ -11,10 +11,15 @@
 import type * as agents_habits from "../agents/habits.js";
 import type * as agents_orchestrator from "../agents/orchestrator.js";
 import type * as agents_safety from "../agents/safety.js";
+import type * as chat from "../chat.js";
+import type * as functions_habits from "../functions/habits.js";
+import type * as functions_wellness from "../functions/wellness.js";
 import type * as http from "../http.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as prompts_habits from "../prompts/habits.js";
 import type * as prompts_orchestrator from "../prompts/orchestrator.js";
 import type * as prompts_safety from "../prompts/safety.js";
+import type * as tools_habitTools from "../tools/habitTools.js";
 import type * as users from "../users.js";
 
 import type {
@@ -27,10 +32,15 @@ declare const fullApi: ApiFromModules<{
   "agents/habits": typeof agents_habits;
   "agents/orchestrator": typeof agents_orchestrator;
   "agents/safety": typeof agents_safety;
+  chat: typeof chat;
+  "functions/habits": typeof functions_habits;
+  "functions/wellness": typeof functions_wellness;
   http: typeof http;
+  "lib/auth": typeof lib_auth;
   "prompts/habits": typeof prompts_habits;
   "prompts/orchestrator": typeof prompts_orchestrator;
   "prompts/safety": typeof prompts_safety;
+  "tools/habitTools": typeof tools_habitTools;
   users: typeof users;
 }>;
 
