@@ -7,12 +7,11 @@ import {
   analyzeFoodImage,
   createMealPlan,
   getNutritionSummary,
-  searchNutritionDB,
 } from "../tools/nutritionTools";
 
 export const nutritionAgent = new Agent(components.agent, {
   name: "Especialista en Nutricion",
   languageModel: google("gemini-2.5-flash"),
   instructions: NUTRITION_SYSTEM_PROMPT,
-  tools: { logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary, searchNutritionDB },
+  tools: { logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary },
 });

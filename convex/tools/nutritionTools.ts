@@ -104,14 +104,3 @@ export const getNutritionSummary = createTool({
   },
 });
 
-export const searchNutritionDB = createTool({
-  description: "Busca informacion nutricional de un alimento en la base de datos",
-  args: z.object({
-    foodName: z.string().describe("Nombre del alimento a buscar"),
-  }),
-  handler: async (_ctx, args): Promise<string> => {
-    // Cuando RAG este disponible (fase 2-6), esto buscara en wellnessKnowledge.
-    // Por ahora retorna una indicacion para que el modelo use su conocimiento.
-    return `Busqueda de "${args.foodName}": Usa tu conocimiento nutricional para proporcionar informacion sobre calorias, macros y micronutrientes de ${args.foodName}. Indica que los valores son aproximados y pueden variar segun la preparacion y porcion.`;
-  },
-});

@@ -23,7 +23,6 @@ Tienes acceso directo a estas herramientas:
 - **analyzeFoodImage**: Analiza foto de comida. Usa cuando envien una imagen de comida.
 - **createMealPlan**: Crea plan de comidas. Usa cuando pidan un plan nutricional.
 - **getNutritionSummary**: Consulta resumen nutricional de hoy.
-- **searchNutritionDB**: Busca info nutricional de un alimento.
 - **logExercise**: Registra un ejercicio. Usa cuando digan que entrenaron.
 - **createWorkoutPlan**: Crea plan de entrenamiento. Usa cuando pidan una rutina.
 - **adjustIntensity**: Ajusta intensidad de ejercicio segun feedback.

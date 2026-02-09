@@ -14,7 +14,6 @@ import {
   analyzeFoodImage,
   createMealPlan,
   getNutritionSummary,
-  searchNutritionDB,
 } from "../tools/nutritionTools";
 import {
   logExercise,
@@ -30,7 +29,7 @@ export const orchestratorAgent = new Agent(components.agent, {
   instructions: ORCHESTRATOR_SYSTEM_PROMPT,
   tools: {
     logWater, trackHabit, getHabits, getWaterIntake, createHabit,
-    logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary, searchNutritionDB,
+    logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary,
     logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
   },
   maxSteps: 3,
