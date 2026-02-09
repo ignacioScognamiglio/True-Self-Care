@@ -38,7 +38,7 @@ const habitSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(50, "Maximo 50 caracteres"),
   category: z.string(),
   frequency: z.enum(["daily", "weekly"]),
-  targetPerPeriod: z.coerce.number().int().min(1, "Minimo 1").max(30, "Maximo 30"),
+  targetPerPeriod: z.number().int().min(1, "Minimo 1").max(30, "Maximo 30"),
 });
 
 type FormData = z.infer<typeof habitSchema>;
@@ -151,7 +151,7 @@ export function CreateHabitDialog() {
                 type="number"
                 min={1}
                 max={30}
-                {...register("targetPerPeriod")}
+                {...register("targetPerPeriod", { valueAsNumber: true })}
               />
               {errors.targetPerPeriod && (
                 <p className="text-sm text-destructive">
