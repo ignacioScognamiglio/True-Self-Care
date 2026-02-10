@@ -8,6 +8,7 @@ import {
   Moon,
   Target,
   TrendingUp,
+  Trophy,
   Settings,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const sidebarNavigation: NavGroup[] = [
     label: "Tracking",
     items: [
       { title: "Progress", url: "/dashboard/progress", icon: TrendingUp },
+      { title: "Gamificacion", url: "/dashboard/gamification", icon: Trophy },
     ],
   },
 ];

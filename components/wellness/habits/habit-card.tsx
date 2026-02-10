@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, Flame, MoreVertical, Trash2 } from "lucide-react";
+import { Check, Flame, MoreVertical, Trash2, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -77,6 +77,15 @@ export function HabitCard({ habit, isCompletedToday }: HabitCardProps) {
               <span>
                 {habit.currentStreak} {habit.currentStreak === 1 ? "dia" : "dias"}
               </span>
+              {habit.currentStreak >= 30 && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 bg-yellow-100 text-yellow-700 border-yellow-300">x3</Badge>
+              )}
+              {habit.currentStreak >= 14 && habit.currentStreak < 30 && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 bg-green-100 text-green-700 border-green-300">x2</Badge>
+              )}
+              {habit.currentStreak >= 7 && habit.currentStreak < 14 && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 bg-blue-100 text-blue-700 border-blue-300">x1.5</Badge>
+              )}
             </div>
           )}
         </div>

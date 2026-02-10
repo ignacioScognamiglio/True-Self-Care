@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, UtensilsCrossed, Dumbbell, Target, Brain, Moon } from "lucide-react";
 import { InsightsFeed } from "@/components/wellness/insights/insights-feed";
 import { DailyPlan } from "@/components/wellness/daily-plan";
+import { XPBar } from "@/components/wellness/gamification/xp-bar";
+import { ChallengeCard } from "@/components/wellness/gamification/challenge-card";
 
 
 function formatMl(ml: number) {
@@ -146,6 +148,19 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Gamificacion widgets */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Tu Progreso</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <XPBar compact />
+          </CardContent>
+        </Card>
+        <ChallengeCard compact />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

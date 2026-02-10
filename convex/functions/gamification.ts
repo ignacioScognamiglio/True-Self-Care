@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import {
   query,
+  mutation,
   internalMutation,
   internalQuery,
 } from "../_generated/server";
@@ -451,6 +452,38 @@ export const getUserAchievements = query({
         xpAwarded: a.xpAwarded,
       };
     });
+  },
+});
+
+// ═══ PUBLIC MUTATIONS ═══
+
+export const useStreakFreezePublic = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUser(ctx);
+    const profile = await ctx.db
+      .query("gamification")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!profile || profile.streakFreezes <= 0) {
+      return { success: false, remainingFreezes: profile?.streakFreezes ?? 0 };
+    }
+
+    if (profile.lastStreakFreezeUsedAt) {
+      const daysSinceUse =
+        (Date.now() - profile.lastStreakFreezeUsedAt) / (24 * 60 * 60 * 1000);
+      if (daysSinceUse < STREAK_FREEZE_COOLDOWN_DAYS) {
+        return { success: false, remainingFreezes: profile.streakFreezes };
+      }
+    }
+
+    await ctx.db.patch(profile._id, {
+      streakFreezes: profile.streakFreezes - 1,
+      lastStreakFreezeUsedAt: Date.now(),
+    });
+
+    return { success: true, remainingFreezes: profile.streakFreezes - 1 };
   },
 });
 
