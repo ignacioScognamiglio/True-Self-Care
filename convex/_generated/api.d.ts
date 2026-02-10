@@ -28,6 +28,7 @@ import type * as functions_mental from "../functions/mental.js";
 import type * as functions_notifications from "../functions/notifications.js";
 import type * as functions_nutrition from "../functions/nutrition.js";
 import type * as functions_plans from "../functions/plans.js";
+import type * as functions_pushNotifications from "../functions/pushNotifications.js";
 import type * as functions_sleep from "../functions/sleep.js";
 import type * as functions_wellness from "../functions/wellness.js";
 import type * as http from "../http.js";
@@ -75,6 +76,7 @@ declare const fullApi: ApiFromModules<{
   "functions/notifications": typeof functions_notifications;
   "functions/nutrition": typeof functions_nutrition;
   "functions/plans": typeof functions_plans;
+  "functions/pushNotifications": typeof functions_pushNotifications;
   "functions/sleep": typeof functions_sleep;
   "functions/wellness": typeof functions_wellness;
   http: typeof http;

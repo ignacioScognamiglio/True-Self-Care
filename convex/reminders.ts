@@ -1,4 +1,5 @@
 import { internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { startOfDay, subDays } from "date-fns";
 
 export const checkHydration = internalMutation({
@@ -27,13 +28,21 @@ export const checkHydration = internalMutation({
 
       if (totalMl < goalMl * 0.5 && now.getUTCHours() >= 15) {
         // Past noon Argentina time (UTC-3, so 15 UTC = 12 ART)
+        const title = "Recordatorio de hidratacion";
+        const body = `Llevas ${totalMl}ml de ${goalMl}ml. No olvides tomar agua!`;
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "hydration_reminder",
-          title: "Recordatorio de hidratacion",
-          body: `Llevas ${totalMl}ml de ${goalMl}ml. No olvides tomar agua!`,
+          title,
+          body,
           read: false,
           createdAt: Date.now(),
+        });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "hydration_reminder",
         });
       }
     }
@@ -69,14 +78,23 @@ export const checkPendingHabits = internalMutation({
       const pending = habits.filter((h) => !completedHabitIds.has(h._id));
 
       if (pending.length > 0) {
+        const title = "Habitos pendientes";
+        const body = `Tienes ${pending.length} habito${pending.length > 1 ? "s" : ""} pendiente${pending.length > 1 ? "s" : ""} para hoy`;
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "habits_reminder",
-          title: "Habitos pendientes",
-          body: `Tienes ${pending.length} habito${pending.length > 1 ? "s" : ""} pendiente${pending.length > 1 ? "s" : ""} para hoy`,
+          title,
+          body,
           read: false,
           actionUrl: "/dashboard/habits",
           createdAt: Date.now(),
+        });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "habits_reminder",
+          actionUrl: "/dashboard/habits",
         });
       }
     }
@@ -102,24 +120,42 @@ export const checkNutritionLogging = internalMutation({
         .collect();
 
       if (meals.length === 0) {
+        const title = "Registro nutricional";
+        const body = "No olvides registrar tus comidas de hoy";
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "nutrition_reminder",
-          title: "Registro nutricional",
-          body: "No olvides registrar tus comidas de hoy",
+          title,
+          body,
           read: false,
           actionUrl: "/dashboard/nutrition",
           createdAt: Date.now(),
         });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "nutrition_reminder",
+          actionUrl: "/dashboard/nutrition",
+        });
       } else if (meals.length < 3) {
+        const title = "Registro nutricional";
+        const body = `Llevas ${meals.length} comida${meals.length > 1 ? "s" : ""} registrada${meals.length > 1 ? "s" : ""} hoy. Recorda registrar las que faltan.`;
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "nutrition_reminder",
-          title: "Registro nutricional",
-          body: `Llevas ${meals.length} comida${meals.length > 1 ? "s" : ""} registrada${meals.length > 1 ? "s" : ""} hoy. Recorda registrar las que faltan.`,
+          title,
+          body,
           read: false,
           actionUrl: "/dashboard/nutrition",
           createdAt: Date.now(),
+        });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "nutrition_reminder",
+          actionUrl: "/dashboard/nutrition",
         });
       }
     }
@@ -156,14 +192,23 @@ export const checkWorkoutReminder = internalMutation({
         .first();
 
       if (!todayExercises) {
+        const title = "Recordatorio de entrenamiento";
+        const body = "Hoy toca entrenar! No olvides tu sesion de ejercicio.";
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "workout_reminder",
-          title: "Recordatorio de entrenamiento",
-          body: "Hoy toca entrenar! No olvides tu sesion de ejercicio.",
+          title,
+          body,
           read: false,
           actionUrl: "/dashboard/fitness",
           createdAt: Date.now(),
+        });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "workout_reminder",
+          actionUrl: "/dashboard/fitness",
         });
       }
     }
@@ -189,14 +234,23 @@ export const checkMoodCheckin = internalMutation({
         .first();
 
       if (!moodEntries) {
+        const title = "Check-in emocional";
+        const body = "No olvides registrar como te sentis hoy";
         await ctx.db.insert("notifications", {
           userId: user._id,
           type: "mood_checkin_reminder",
-          title: "Check-in emocional",
-          body: "No olvides registrar como te sentis hoy",
+          title,
+          body,
           read: false,
           actionUrl: "/dashboard/mental/checkin",
           createdAt: Date.now(),
+        });
+        await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+          userId: user._id,
+          title,
+          body,
+          tag: "mood_checkin_reminder",
+          actionUrl: "/dashboard/mental/checkin",
         });
       }
     }
@@ -239,14 +293,23 @@ export const checkSleepReminder = internalMutation({
           );
 
           if (!alreadySent) {
+            const title = "Hora de tu rutina de sueno";
+            const body = `Es hora de empezar tu rutina de sueno! Tu hora de dormir es a las ${bedTime}.`;
             await ctx.db.insert("notifications", {
               userId: user._id,
               type: "sleep_bedtime_reminder",
-              title: "Hora de tu rutina de sueno",
-              body: `Es hora de empezar tu rutina de sueno! Tu hora de dormir es a las ${bedTime}.`,
+              title,
+              body,
               read: false,
               actionUrl: "/dashboard/sleep",
               createdAt: Date.now(),
+            });
+            await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+              userId: user._id,
+              title,
+              body,
+              tag: "sleep_bedtime_reminder",
+              actionUrl: "/dashboard/sleep",
             });
           }
         }
@@ -279,14 +342,23 @@ export const checkSleepReminder = internalMutation({
           );
 
           if (!alreadySent) {
+            const title = "Registra tu sueno";
+            const body = "No olvides registrar como dormiste anoche.";
             await ctx.db.insert("notifications", {
               userId: user._id,
               type: "sleep_log_reminder",
-              title: "Registra tu sueno",
-              body: "No olvides registrar como dormiste anoche.",
+              title,
+              body,
               read: false,
               actionUrl: "/dashboard/sleep",
               createdAt: Date.now(),
+            });
+            await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+              userId: user._id,
+              title,
+              body,
+              tag: "sleep_log_reminder",
+              actionUrl: "/dashboard/sleep",
             });
           }
         }

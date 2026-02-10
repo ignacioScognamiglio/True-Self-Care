@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 
 export const upsertFromClerk = internalMutation({
   args: {
@@ -66,5 +66,38 @@ export const getCurrentUser = query({
         q.eq("clerkId", identity.subject)
       )
       .unique();
+  },
+});
+
+export const updatePreferences = mutation({
+  args: {
+    notificationsEnabled: v.optional(v.boolean()),
+    wakeUpTime: v.optional(v.string()),
+    bedTime: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    const updatedPreferences = { ...user.preferences };
+
+    if (args.notificationsEnabled !== undefined) {
+      updatedPreferences.notificationsEnabled = args.notificationsEnabled;
+    }
+    if (args.wakeUpTime !== undefined) {
+      updatedPreferences.wakeUpTime = args.wakeUpTime;
+    }
+    if (args.bedTime !== undefined) {
+      updatedPreferences.bedTime = args.bedTime;
+    }
+
+    await ctx.db.patch(user._id, { preferences: updatedPreferences });
   },
 });

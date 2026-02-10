@@ -5,16 +5,53 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Droplets, ListChecks, Inbox, Loader2 } from "lucide-react";
+import {
+  Droplets,
+  ListChecks,
+  Inbox,
+  Loader2,
+  UtensilsCrossed,
+  Dumbbell,
+  Brain,
+  Moon,
+  Sun,
+  Lightbulb,
+  BarChart3,
+  AlertTriangle,
+  Smartphone,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 
+const NOTIFICATION_ICONS: Record<
+  string,
+  { icon: typeof Droplets; color: string }
+> = {
+  hydration_reminder: { icon: Droplets, color: "text-blue-500" },
+  habits_reminder: { icon: ListChecks, color: "text-green-500" },
+  nutrition_reminder: { icon: UtensilsCrossed, color: "text-orange-500" },
+  workout_reminder: { icon: Dumbbell, color: "text-red-500" },
+  mood_checkin_reminder: { icon: Brain, color: "text-purple-500" },
+  crisis_incident: { icon: AlertTriangle, color: "text-red-600" },
+  cross_domain_insight: { icon: Lightbulb, color: "text-yellow-500" },
+  sleep_bedtime_reminder: { icon: Moon, color: "text-indigo-500" },
+  sleep_log_reminder: { icon: Moon, color: "text-indigo-400" },
+  daily_plan: { icon: Sun, color: "text-amber-500" },
+  weekly_summary: { icon: BarChart3, color: "text-teal-500" },
+  google_fit_sync: { icon: Smartphone, color: "text-green-500" },
+  google_fit_error: { icon: AlertTriangle, color: "text-orange-500" },
+};
+
 export function NotificationPanel() {
-  const notifications = useQuery(api.functions.notifications.getRecentNotifications);
+  const notifications = useQuery(
+    api.functions.notifications.getRecentNotifications
+  );
   const unreadCount = useQuery(api.functions.notifications.getUnreadCount);
   const markAsRead = useMutation(api.functions.notifications.markAsRead);
-  const markAllAsRead = useMutation(api.functions.notifications.markAllAsRead);
+  const markAllAsRead = useMutation(
+    api.functions.notifications.markAllAsRead
+  );
   const router = useRouter();
 
   if (notifications === undefined) {
@@ -35,14 +72,12 @@ export function NotificationPanel() {
   }
 
   const iconForType = (type: string) => {
-    switch (type) {
-      case "hydration_reminder":
-        return <Droplets className="size-4 text-blue-500 shrink-0" />;
-      case "habits_reminder":
-        return <ListChecks className="size-4 text-green-500 shrink-0" />;
-      default:
-        return <Inbox className="size-4 text-muted-foreground shrink-0" />;
+    const config = NOTIFICATION_ICONS[type];
+    if (config) {
+      const Icon = config.icon;
+      return <Icon className={`size-4 ${config.color} shrink-0`} />;
     }
+    return <Inbox className="size-4 text-muted-foreground shrink-0" />;
   };
 
   const handleClick = async (notification: {

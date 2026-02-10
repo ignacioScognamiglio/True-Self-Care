@@ -356,6 +356,13 @@ export const createDailyPlanNotification = internalMutation({
       actionUrl: "/dashboard",
       createdAt: Date.now(),
     });
+    await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
+      userId: args.userId,
+      title: args.title,
+      body: args.body,
+      tag: "daily_plan",
+      actionUrl: "/dashboard",
+    });
   },
 });
 
