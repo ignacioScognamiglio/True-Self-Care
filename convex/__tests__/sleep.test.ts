@@ -7,6 +7,7 @@ interface SleepData {
   wakeTime: string;
   quality: number;
   durationMinutes: number;
+  qualityScore?: number;
   interruptions?: number;
   factors?: string[];
   notes?: string;
