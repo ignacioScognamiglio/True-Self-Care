@@ -3,7 +3,9 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, UtensilsCrossed, Dumbbell, Target, Brain } from "lucide-react";
+import { Droplets, UtensilsCrossed, Dumbbell, Target, Brain, Moon } from "lucide-react";
+import { InsightsFeed } from "@/components/wellness/insights/insights-feed";
+import { DailyPlan } from "@/components/wellness/daily-plan";
 
 
 function formatMl(ml: number) {
@@ -16,6 +18,7 @@ export default function DashboardPage() {
   const nutritionSummary = useQuery(api.functions.nutrition.getTodayNutritionSummaryPublic);
   const exerciseSummary = useQuery(api.functions.fitness.getTodayExerciseSummaryPublic);
   const moodSummary = useQuery(api.functions.mental.getTodayMoodSummaryPublic);
+  const sleepSummary = useQuery(api.functions.sleep.getTodaySleepSummaryPublic);
 
   const hydrationValue = waterIntake
     ? `${formatMl(waterIntake.totalMl)} / 2.5L`
@@ -67,6 +70,13 @@ export default function DashboardPage() {
     ? `Intensidad ${moodSummary.latestIntensity}/10`
     : "Hace tu check-in";
 
+  const sleepValue = sleepSummary?.hasLoggedSleep
+    ? `${sleepSummary.durationFormatted}`
+    : "\u2014";
+  const sleepSub = sleepSummary?.hasLoggedSleep
+    ? `Score: ${sleepSummary.qualityScore}/100`
+    : "Registra tu sueno";
+
   const quickStats = [
     {
       title: "Hidratacion",
@@ -103,6 +113,13 @@ export default function DashboardPage() {
       icon: Brain,
       color: "text-wellness-mental",
     },
+    {
+      title: "Sueno",
+      value: sleepValue,
+      sub: sleepSub,
+      icon: Moon,
+      color: "text-indigo-500",
+    },
   ];
 
   return (
@@ -110,10 +127,11 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Daily Hub</h2>
         <p className="text-muted-foreground">
-          Your personalized wellness overview
+          Tu resumen de bienestar personalizado
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {quickStats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -128,6 +146,14 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <DailyPlan />
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Insights</h3>
+          <InsightsFeed limit={3} compact />
+        </div>
       </div>
     </div>
   );

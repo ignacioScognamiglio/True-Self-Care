@@ -330,6 +330,8 @@ export const getSleepHistory = query({
         quality: data.quality,
         qualityScore: data.qualityScore,
         interruptions: data.interruptions ?? 0,
+        factors: data.factors ?? [],
+        source: e.source,
       };
     });
   },

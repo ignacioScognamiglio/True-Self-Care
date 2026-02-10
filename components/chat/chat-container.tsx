@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import {
   useUIMessages,
@@ -22,6 +22,12 @@ const SUGGESTIONS = [
   "Hice 4 series de press banca con 80kg",
   "Creame una rutina de entrenamiento",
   "Cuales son mis personal records?",
+  "Dormi de 23:30 a 7:00, calidad buena",
+  "Como dormi esta semana?",
+  "Creame una rutina para dormir mejor",
+  "Que patrones ves en mis datos?",
+  "Como afecta el ejercicio a mi sueno?",
+  "Dame un resumen de mi semana",
 ] as const;
 
 export function ChatContainer() {
@@ -100,11 +106,25 @@ export function ChatContainer() {
   );
 }
 
+function shuffleArray<T>(array: readonly T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 function EmptyState({
   onSuggestionClick,
 }: {
   onSuggestionClick: (message: string) => void;
 }) {
+  const randomSuggestions = useMemo(
+    () => shuffleArray(SUGGESTIONS).slice(0, 4),
+    []
+  );
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 px-4 py-16">
       <div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
@@ -121,7 +141,7 @@ function EmptyState({
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2">
-        {SUGGESTIONS.slice(0, 4).map((suggestion) => (
+        {randomSuggestions.map((suggestion) => (
           <Button
             key={suggestion}
             variant="outline"

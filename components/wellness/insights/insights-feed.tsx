@@ -30,8 +30,15 @@ function detectDomains(title: string, body: string): string[] {
   return detected.length > 0 ? detected : ["general"];
 }
 
-export function InsightsFeed() {
-  const insights = useQuery(api.functions.insights.getRecentInsights, {});
+interface InsightsFeedProps {
+  limit?: number;
+  compact?: boolean;
+}
+
+export function InsightsFeed({ limit, compact }: InsightsFeedProps = {}) {
+  const insights = useQuery(api.functions.insights.getRecentInsights, {
+    ...(limit ? { limit } : {}),
+  });
   const dismissInsight = useMutation(api.functions.insights.dismissInsight);
 
   async function handleDismiss(notificationId: Id<"notifications">) {
@@ -55,8 +62,13 @@ export function InsightsFeed() {
   // Filter to show only unread insights
   const unreadInsights = insights.filter((i) => !i.read);
 
+  // Apply limit
+  const displayInsights = limit
+    ? unreadInsights.slice(0, limit)
+    : unreadInsights;
+
   // Empty state
-  if (unreadInsights.length === 0) {
+  if (displayInsights.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-8 text-center">
@@ -71,9 +83,30 @@ export function InsightsFeed() {
     );
   }
 
+  // Compact mode: simpler horizontal layout without dismiss buttons
+  if (compact) {
+    return (
+      <div className="space-y-2">
+        {displayInsights.map((insight) => {
+          const domains = detectDomains(insight.title, insight.body);
+
+          return (
+            <InsightCard
+              key={insight._id}
+              title={insight.title}
+              body={insight.body}
+              domains={domains}
+              priority="medium"
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
-      {unreadInsights.map((insight) => {
+      {displayInsights.map((insight) => {
         const domains = detectDomains(insight.title, insight.body);
 
         return (

@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Moon } from "lucide-react";
+import { WearableBadge } from "@/components/wellness/google-fit/wearable-badge";
 
 const FACTOR_LABELS: Record<string, string> = {
   estres: "Estres",
@@ -90,14 +91,7 @@ export function SleepHistory() {
                   }
                 );
 
-                // Get factors from the raw entry data
-                const factors: string[] = [];
-                // The history query returns fields directly, but factors come from the raw data
-                // We need to handle this based on what's available
-                const entryAny = entry as any;
-                if (entryAny.factors && Array.isArray(entryAny.factors)) {
-                  factors.push(...entryAny.factors);
-                }
+                const factors: string[] = entry.factors ?? [];
 
                 return (
                   <div
@@ -110,6 +104,7 @@ export function SleepHistory() {
                         <span className="text-xs text-muted-foreground">
                           {entry.bedTime} → {entry.wakeTime}
                         </span>
+                        {entry.source === "wearable" && <WearableBadge />}
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">

@@ -36,6 +36,13 @@ export default defineSchema({
     fitnessLevel: v.optional(v.string()),
     healthGoals: v.optional(v.array(v.string())),
     medicalConditions: v.optional(v.array(v.string())),
+    googleFitTokens: v.optional(v.object({
+      accessToken: v.string(),
+      refreshToken: v.string(),
+      expiresAt: v.number(),
+      scopes: v.array(v.string()),
+      connectedAt: v.number(),
+    })),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
 

@@ -45,9 +45,10 @@ export function WorkoutPlanEditor({
   onClose,
 }: WorkoutPlanEditorProps) {
   const updateContent = useMutation(api.functions.plans.updatePlanContent);
-  const [content, setContent] = useState<WorkoutPlanContent>(
-    JSON.parse(JSON.stringify(initialContent))
-  );
+  const [content, setContent] = useState<WorkoutPlanContent>(() => {
+    const parsed = JSON.parse(JSON.stringify(initialContent));
+    return { ...parsed, days: parsed.days ?? [] };
+  });
   const [isSaving, setIsSaving] = useState(false);
 
   function updateDay(dayIndex: number, updatedDay: WorkoutDay) {

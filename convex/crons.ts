@@ -45,4 +45,32 @@ crons.daily(
   internal.reminders.checkMoodCheckin
 );
 
+// Google Fit sync - cada 6 horas para usuarios conectados
+crons.interval(
+  "google-fit-sync",
+  { hours: 6 },
+  internal.functions.googleFit.syncAllUsers
+);
+
+// Daily Plan - generar a las 6am Argentina (UTC-3 = 9 UTC)
+crons.daily(
+  "daily-plan-generation",
+  { hourUTC: 9, minuteUTC: 0 },
+  internal.functions.dailyPlan.generateDailyPlan
+);
+
+// Weekly Summary - generar domingos a las 9am Argentina (UTC-3 = 12 UTC)
+crons.weekly(
+  "weekly-summary-generation",
+  { dayOfWeek: "sunday", hourUTC: 12, minuteUTC: 0 },
+  internal.functions.dailyPlan.generateWeeklySummary
+);
+
+// Sleep reminder - verificar cada hora si es momento de recordar
+crons.interval(
+  "sleep-reminder",
+  { hours: 1 },
+  internal.reminders.checkSleepReminder
+);
+
 export default crons;

@@ -203,6 +203,98 @@ export const checkMoodCheckin = internalMutation({
   },
 });
 
+export const checkSleepReminder = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const now = new Date();
+    const currentHourUTC = now.getUTCHours();
+
+    for (const user of users) {
+      if (!user.preferences?.notificationsEnabled) continue;
+      if (!user.preferences?.activeModules?.includes("sleep")) continue;
+
+      const bedTime = user.preferences?.bedTime;
+
+      // Check if it's 30 min before bedtime (approximate with hourly check)
+      if (bedTime) {
+        const [bedH] = bedTime.split(":").map(Number);
+        // Convert bedtime to UTC (Argentina is UTC-3)
+        const bedHourUTC = (bedH + 3) % 24;
+        // Trigger reminder 1 hour before bedtime (since we check hourly)
+        const reminderHourUTC = (bedHourUTC - 1 + 24) % 24;
+
+        if (currentHourUTC === reminderHourUTC) {
+          // Check if we already sent a reminder today
+          const todayStart = startOfDay(now).getTime();
+          const existing = await ctx.db
+            .query("notifications")
+            .withIndex("by_user_time", (q) =>
+              q.eq("userId", user._id).gte("createdAt", todayStart)
+            )
+            .collect();
+
+          const alreadySent = existing.some(
+            (n) => n.type === "sleep_bedtime_reminder"
+          );
+
+          if (!alreadySent) {
+            await ctx.db.insert("notifications", {
+              userId: user._id,
+              type: "sleep_bedtime_reminder",
+              title: "Hora de tu rutina de sueno",
+              body: `Es hora de empezar tu rutina de sueno! Tu hora de dormir es a las ${bedTime}.`,
+              read: false,
+              actionUrl: "/dashboard/sleep",
+              createdAt: Date.now(),
+            });
+          }
+        }
+      }
+
+      // Morning check: if user hasn't logged sleep from last night (check at 10am ART = 13 UTC)
+      if (currentHourUTC === 13) {
+        const todayStart = startOfDay(now).getTime();
+        const yesterdayStart = todayStart - 24 * 60 * 60 * 1000;
+
+        const sleepEntries = await ctx.db
+          .query("wellnessEntries")
+          .withIndex("by_user_type", (q) =>
+            q.eq("userId", user._id).eq("type", "sleep")
+          )
+          .filter((q) => q.gte(q.field("timestamp"), yesterdayStart))
+          .first();
+
+        if (!sleepEntries) {
+          // Check if we already sent this reminder today
+          const existing = await ctx.db
+            .query("notifications")
+            .withIndex("by_user_time", (q) =>
+              q.eq("userId", user._id).gte("createdAt", todayStart)
+            )
+            .collect();
+
+          const alreadySent = existing.some(
+            (n) => n.type === "sleep_log_reminder"
+          );
+
+          if (!alreadySent) {
+            await ctx.db.insert("notifications", {
+              userId: user._id,
+              type: "sleep_log_reminder",
+              title: "Registra tu sueno",
+              body: "No olvides registrar como dormiste anoche.",
+              read: false,
+              actionUrl: "/dashboard/sleep",
+              createdAt: Date.now(),
+            });
+          }
+        }
+      }
+    }
+  },
+});
+
 export const resetMissedStreaks = internalMutation({
   args: {},
   handler: async (ctx) => {
