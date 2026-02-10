@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Trophy } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -24,11 +25,13 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 };
 
 export function ChallengeHistory() {
-  const challenges = useQuery(api.functions.challenges.getChallenges, {
-    limit: 10,
-  });
+  const { results: challenges, status, loadMore } = usePaginatedQuery(
+    api.functions.challenges.getChallenges,
+    {},
+    { initialNumItems: 10 }
+  );
 
-  if (!challenges) {
+  if (status === "LoadingFirstPage") {
     return (
       <div className="space-y-2">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -76,6 +79,15 @@ export function ChallengeHistory() {
           )}
         </div>
       ))}
+      {status === "CanLoadMore" && (
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => loadMore(10)}
+        >
+          Cargar mas
+        </Button>
+      )}
     </div>
   );
 }

@@ -108,6 +108,7 @@ export function WorkoutTimer({
           size="icon"
           className="size-8"
           onClick={() => setPaused(!paused)}
+          aria-label={isRunning ? "Pausar sesion" : "Reanudar sesion"}
         >
           {paused ? (
             <Play className="size-4" />
@@ -134,6 +135,7 @@ export function WorkoutTimer({
             size="icon"
             className="size-7"
             onClick={() => setPaused(!paused)}
+            aria-label={paused ? "Reanudar descanso" : "Pausar descanso"}
           >
             {paused ? (
               <Play className="size-3.5" />
@@ -146,6 +148,7 @@ export function WorkoutTimer({
             size="icon"
             className="size-7"
             onClick={handleReset}
+            aria-label="Reiniciar descanso"
           >
             <RotateCcw className="size-3.5" />
           </Button>

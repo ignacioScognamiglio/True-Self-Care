@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery, usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Activity, CheckCircle, Flame } from "lucide-react";
@@ -18,11 +18,15 @@ const MOOD_EMOJIS: Record<string, string> = {
 
 export function MentalStats() {
   const summary = useQuery(api.functions.mental.getTodayMoodSummaryPublic);
-  const history = useQuery(api.functions.mental.getMoodHistory, { days: 30 });
+  const { results: history } = usePaginatedQuery(
+    api.functions.mental.getMoodHistory,
+    { days: 30 },
+    { initialNumItems: 200 }
+  );
 
   // Calculate streak from history
   let streak = 0;
-  if (history) {
+  if (history.length > 0) {
     for (let i = history.length - 1; i >= 0; i--) {
       if (history[i].checkInCount > 0) {
         streak++;
@@ -61,7 +65,7 @@ export function MentalStats() {
     },
     {
       title: "Racha",
-      value: history ? `${streak} dia${streak !== 1 ? "s" : ""}` : "\u2014",
+      value: history.length > 0 ? `${streak} dia${streak !== 1 ? "s" : ""}` : "\u2014",
       icon: Flame,
       color: "text-orange-500",
     },

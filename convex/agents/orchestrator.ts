@@ -1,5 +1,5 @@
 import { Agent } from "@convex-dev/agent";
-import { google } from "@ai-sdk/google";
+import { MODELS } from "../lib/modelConfig";
 import { components } from "../_generated/api";
 import { ORCHESTRATOR_SYSTEM_PROMPT } from "../prompts/orchestrator";
 import {
@@ -52,7 +52,7 @@ import {
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
-  languageModel: google("gemini-2.5-flash"),
+  languageModel: MODELS.FLASH,
   instructions: ORCHESTRATOR_SYSTEM_PROMPT,
   tools: {
     logWater, trackHabit, getHabits, getWaterIntake, createHabit,

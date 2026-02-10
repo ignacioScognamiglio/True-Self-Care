@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import {
   query,
   mutation,
@@ -195,28 +196,34 @@ export const getTodayNutritionSummaryPublic = query({
 });
 
 export const getNutritionHistory = query({
-  args: { days: v.optional(v.number()) },
+  args: {
+    days: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+  },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUserOrNull(ctx);
-    if (!user) return [];
+    if (!user)
+      return { page: [], isDone: true, continueCursor: "" };
 
     const numDays = args.days ?? 7;
     const startTime = Date.now() - numDays * 24 * 60 * 60 * 1000;
 
-    const entries = await ctx.db
+    const result = await ctx.db
       .query("wellnessEntries")
       .withIndex("by_user_type", (q) =>
         q.eq("userId", user._id).eq("type", "nutrition")
       )
       .filter((q) => q.gte(q.field("timestamp"), startTime))
-      .collect();
+      .order("desc")
+      .paginate(args.paginationOpts);
 
+    // Aggregate page entries by day
     const dailyMap = new Map<
       number,
       { calories: number; protein: number; carbs: number; fat: number; mealCount: number }
     >();
 
-    for (const entry of entries) {
+    for (const entry of result.page) {
       const dayKey = startOfDay(new Date(entry.timestamp)).getTime();
       const existing = dailyMap.get(dayKey) ?? {
         calories: 0,
@@ -234,23 +241,21 @@ export const getNutritionHistory = query({
       dailyMap.set(dayKey, existing);
     }
 
-    const result = [];
-    for (let i = numDays - 1; i >= 0; i--) {
-      const day = startOfDay(
-        new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-      ).getTime();
-      const data = dailyMap.get(day);
-      result.push({
+    const aggregated = Array.from(dailyMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([day, data]) => ({
         date: day,
-        totalCalories: data?.calories ?? 0,
-        totalProtein: data?.protein ?? 0,
-        totalCarbs: data?.carbs ?? 0,
-        totalFat: data?.fat ?? 0,
-        mealCount: data?.mealCount ?? 0,
-      });
-    }
+        totalCalories: data.calories,
+        totalProtein: data.protein,
+        totalCarbs: data.carbs,
+        totalFat: data.fat,
+        mealCount: data.mealCount,
+      }));
 
-    return result;
+    return {
+      ...result,
+      page: aggregated,
+    };
   },
 });
 

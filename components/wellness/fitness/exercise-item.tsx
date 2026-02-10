@@ -78,6 +78,7 @@ export function ExerciseItem({
           size="icon"
           className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
           onClick={onRemove}
+          aria-label="Eliminar ejercicio"
         >
           <Trash2 className="size-3.5" />
         </Button>
@@ -152,6 +153,7 @@ export function ExerciseItem({
                   set.completed && "bg-green-600 hover:bg-green-700"
                 )}
                 onClick={() => updateSet(i, "completed", !set.completed)}
+                aria-label="Marcar serie como completada"
               >
                 {set.completed ? (
                   <Check className="size-3.5" />
@@ -194,6 +196,7 @@ export function ExerciseItem({
                 className="size-7 text-muted-foreground"
                 onClick={() => removeSet(i)}
                 disabled={exercise.sets.length <= 1}
+                aria-label="Eliminar serie"
               >
                 <Trash2 className="size-3" />
               </Button>

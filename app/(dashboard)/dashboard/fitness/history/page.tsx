@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { ArrowLeft, Dumbbell, Clock, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 export default function FitnessHistoryPage() {
-  const history = useQuery(api.functions.fitness.getExerciseHistory, {
-    days: 30,
-  });
+  const { results: history, status, loadMore } = usePaginatedQuery(
+    api.functions.fitness.getExerciseHistory,
+    { days: 30 },
+    { initialNumItems: 20 }
+  );
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -26,7 +28,7 @@ export default function FitnessHistoryPage() {
         </div>
       </div>
 
-      {!history ? (
+      {status === "LoadingFirstPage" ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
             Cargando...
@@ -83,6 +85,15 @@ export default function FitnessHistoryPage() {
                 </CardContent>
               </Card>
             ))}
+          {status === "CanLoadMore" && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => loadMore(20)}
+            >
+              Cargar mas
+            </Button>
+          )}
         </div>
       )}
     </div>

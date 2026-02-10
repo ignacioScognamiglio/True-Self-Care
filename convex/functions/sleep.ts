@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import {
   query,
   mutation,
@@ -318,36 +319,45 @@ export const getSleepHistoryInternal = internalQuery({
 });
 
 export const getSleepHistory = query({
-  args: { days: v.optional(v.number()) },
+  args: {
+    days: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+  },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUserOrNull(ctx);
-    if (!user) return [];
+    if (!user)
+      return { page: [], isDone: true, continueCursor: "" };
 
     const numDays = args.days ?? 7;
     const startTime = Date.now() - numDays * 24 * 60 * 60 * 1000;
 
-    const entries = await ctx.db
+    const result = await ctx.db
       .query("wellnessEntries")
       .withIndex("by_user_type", (q) =>
         q.eq("userId", user._id).eq("type", "sleep")
       )
       .filter((q) => q.gte(q.field("timestamp"), startTime))
-      .collect();
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    return entries.map((e) => {
-      const data = e.data as any;
-      return {
-        date: e.timestamp,
-        bedTime: data.bedTime,
-        wakeTime: data.wakeTime,
-        durationMinutes: data.durationMinutes,
-        quality: data.quality,
-        qualityScore: data.qualityScore,
-        interruptions: data.interruptions ?? 0,
-        factors: data.factors ?? [],
-        source: e.source,
-      };
-    });
+    return {
+      ...result,
+      page: result.page.map((e) => {
+        const data = e.data as any;
+        return {
+          _id: e._id,
+          date: e.timestamp,
+          bedTime: data.bedTime,
+          wakeTime: data.wakeTime,
+          durationMinutes: data.durationMinutes,
+          quality: data.quality,
+          qualityScore: data.qualityScore,
+          interruptions: data.interruptions ?? 0,
+          factors: data.factors ?? [],
+          source: e.source,
+        };
+      }),
+    };
   },
 });
 

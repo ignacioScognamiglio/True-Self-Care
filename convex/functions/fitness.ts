@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import {
   query,
   mutation,
@@ -260,28 +261,34 @@ export const getExerciseHistoryInternal = internalQuery({
 });
 
 export const getExerciseHistory = query({
-  args: { days: v.optional(v.number()) },
+  args: {
+    days: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+  },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUserOrNull(ctx);
-    if (!user) return [];
+    if (!user)
+      return { page: [], isDone: true, continueCursor: "" };
 
     const numDays = args.days ?? 7;
     const startTime = Date.now() - numDays * 24 * 60 * 60 * 1000;
 
-    const entries = await ctx.db
+    const result = await ctx.db
       .query("wellnessEntries")
       .withIndex("by_user_type", (q) =>
         q.eq("userId", user._id).eq("type", "exercise")
       )
       .filter((q) => q.gte(q.field("timestamp"), startTime))
-      .collect();
+      .order("desc")
+      .paginate(args.paginationOpts);
 
+    // Aggregate page entries by day
     const dailyMap = new Map<
       number,
       { caloriesBurned: number; exerciseCount: number; volume: number; duration: number }
     >();
 
-    for (const entry of entries) {
+    for (const entry of result.page) {
       const dayKey = startOfDay(new Date(entry.timestamp)).getTime();
       const existing = dailyMap.get(dayKey) ?? {
         caloriesBurned: 0,
@@ -299,22 +306,20 @@ export const getExerciseHistory = query({
       dailyMap.set(dayKey, existing);
     }
 
-    const result = [];
-    for (let i = numDays - 1; i >= 0; i--) {
-      const day = startOfDay(
-        new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-      ).getTime();
-      const data = dailyMap.get(day);
-      result.push({
+    const aggregated = Array.from(dailyMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([day, data]) => ({
         date: day,
-        totalCaloriesBurned: data?.caloriesBurned ?? 0,
-        exerciseCount: data?.exerciseCount ?? 0,
-        totalVolume: data?.volume ?? 0,
-        totalDuration: data?.duration ?? 0,
-      });
-    }
+        totalCaloriesBurned: data.caloriesBurned,
+        exerciseCount: data.exerciseCount,
+        totalVolume: data.volume,
+        totalDuration: data.duration,
+      }));
 
-    return result;
+    return {
+      ...result,
+      page: aggregated,
+    };
   },
 });
 

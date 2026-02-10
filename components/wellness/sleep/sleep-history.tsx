@@ -1,9 +1,10 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Moon } from "lucide-react";
 import { WearableBadge } from "@/components/wellness/google-fit/wearable-badge";
 
@@ -44,9 +45,13 @@ function getScoreBg(score: number): string {
 }
 
 export function SleepHistory() {
-  const history = useQuery(api.functions.sleep.getSleepHistory, { days: 7 });
+  const { results: history, status, loadMore } = usePaginatedQuery(
+    api.functions.sleep.getSleepHistory,
+    { days: 7 },
+    { initialNumItems: 20 }
+  );
 
-  if (!history) {
+  if (status === "LoadingFirstPage") {
     return (
       <Card>
         <CardHeader>
@@ -71,7 +76,7 @@ export function SleepHistory() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {history.filter((e) => e.bedTime !== null).length === 0 ? (
+        {history.length === 0 ? (
           <div className="flex h-[100px] items-center justify-center text-sm text-muted-foreground">
             No hay registros de sueno. Registra tu primera noche!
           </div>
@@ -79,8 +84,6 @@ export function SleepHistory() {
           <div className="space-y-3">
             {history
               .filter((e) => e.bedTime !== null)
-              .slice()
-              .reverse()
               .map((entry, i) => {
                 const dateStr = new Date(entry.date).toLocaleDateString(
                   "es-AR",
@@ -141,6 +144,15 @@ export function SleepHistory() {
                   </div>
                 );
               })}
+            {status === "CanLoadMore" && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => loadMore(20)}
+              >
+                Cargar mas
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

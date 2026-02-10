@@ -6,10 +6,9 @@ import {
   internalMutation,
 } from "../_generated/server";
 import { internal } from "../_generated/api";
-import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { getAuthenticatedUser } from "../lib/auth";
-import { logTokenUsage } from "../lib/tokenTracking";
+import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
 
 // ═══ INTERNAL ACTIONS ═══
 
@@ -142,7 +141,7 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
 
         const startTime = Date.now();
         const { text, usage } = await generateText({
-          model: google("gemini-2.5-flash"),
+          model: getModelForTask("generate_daily_plan"),
           prompt,
         });
         logTokenUsage({
@@ -301,9 +300,17 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   ]
 }`;
 
-        const { text } = await generateText({
-          model: google("gemini-2.5-flash"),
+        const startTimeWeekly = Date.now();
+        const { text, usage: weeklyUsage } = await generateText({
+          model: getModelForTask("generate_weekly_summary"),
           prompt,
+        });
+        logTokenUsage({
+          task: "generate_weekly_summary",
+          model: "gemini-2.5-flash",
+          inputTokens: weeklyUsage?.inputTokens,
+          outputTokens: weeklyUsage?.outputTokens,
+          durationMs: Date.now() - startTimeWeekly,
         });
 
         // Parse JSON

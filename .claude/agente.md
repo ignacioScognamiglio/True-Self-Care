@@ -94,6 +94,9 @@ Referencia: `.claude/planes/PlanMaestro/PlanMaestro.md`
   - 1B-1E: Pendientes
 - **Fases 2-6**: Pendientes
 
+## Convenciones de Git
+- **NO** incluir `Co-Authored-By` en los commits
+
 ## Convenciones de Codigo
 - Server Components por defecto, `"use client"` solo para interactividad
 - Usar `useQuery` / `useMutation` de Convex para datos reactivos

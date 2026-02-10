@@ -187,6 +187,7 @@ export function WorkoutPlanEditor({
                 size="icon"
                 className="size-7 text-muted-foreground hover:text-destructive"
                 onClick={() => removeDay(dayIndex)}
+                aria-label="Eliminar dia"
               >
                 <Trash2 className="size-3.5" />
               </Button>
@@ -216,6 +217,7 @@ export function WorkoutPlanEditor({
                     className="size-6"
                     onClick={() => moveExercise(dayIndex, exIndex, -1)}
                     disabled={exIndex === 0}
+                    aria-label="Mover ejercicio arriba"
                   >
                     <ArrowUp className="size-3" />
                   </Button>
@@ -225,6 +227,7 @@ export function WorkoutPlanEditor({
                     className="size-6"
                     onClick={() => moveExercise(dayIndex, exIndex, 1)}
                     disabled={exIndex === day.exercises.length - 1}
+                    aria-label="Mover ejercicio abajo"
                   >
                     <ArrowDown className="size-3" />
                   </Button>
@@ -233,6 +236,7 @@ export function WorkoutPlanEditor({
                     size="icon"
                     className="size-6"
                     onClick={() => removeExercise(dayIndex, exIndex)}
+                    aria-label="Eliminar ejercicio"
                   >
                     <Trash2 className="size-3" />
                   </Button>

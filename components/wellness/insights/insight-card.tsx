@@ -91,9 +91,9 @@ export function InsightCard({
               size="icon"
               className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
               onClick={onDismiss}
+              aria-label="Descartar insight"
             >
               <X className="size-3.5" />
-              <span className="sr-only">Descartar</span>
             </Button>
           )}
         </div>

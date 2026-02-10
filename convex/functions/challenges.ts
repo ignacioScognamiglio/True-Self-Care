@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import {
   query,
   mutation,
@@ -7,9 +8,8 @@ import {
   internalAction,
 } from "../_generated/server";
 import { internal } from "../_generated/api";
-import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
-import { logTokenUsage } from "../lib/tokenTracking";
+import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 import { CHALLENGE_XP_REWARDS } from "../lib/gamificationConstants";
 import { CHALLENGE_GENERATION_PROMPT } from "../prompts/challenges";
@@ -56,7 +56,7 @@ export const generateWeeklyChallenge = internalAction({
       // 5. Call Gemini
       const startTime = Date.now();
       const { text, usage } = await generateText({
-        model: google("gemini-2.5-flash"),
+        model: getModelForTask("generate_weekly_challenge"),
         prompt,
       });
       logTokenUsage({
@@ -306,36 +306,38 @@ export const getActiveChallenge = query({
 });
 
 export const getChallenges = query({
-  args: { limit: v.optional(v.number()) },
+  args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUserOrNull(ctx);
-    if (!user) return [];
+    if (!user)
+      return { page: [], isDone: true, continueCursor: "" };
 
-    const limit = args.limit ?? 10;
-
-    const challenges = await ctx.db
+    const result = await ctx.db
       .query("aiPlans")
       .withIndex("by_user_type", (q) =>
         q.eq("userId", user._id).eq("type", "challenge")
       )
       .order("desc")
-      .take(limit);
+      .paginate(args.paginationOpts);
 
-    return challenges.map((c) => {
-      const content = c.content as any;
-      return {
-        _id: c._id,
-        title: content.title,
-        type: content.type,
-        difficulty: content.difficulty,
-        status: c.status,
-        targetValue: content.targetValue,
-        currentValue: content.currentValue ?? 0,
-        xpReward: content.xpReward,
-        generatedAt: c.generatedAt,
-        expiresAt: c.expiresAt,
-      };
-    });
+    return {
+      ...result,
+      page: result.page.map((c) => {
+        const content = c.content as any;
+        return {
+          _id: c._id,
+          title: content.title,
+          type: content.type,
+          difficulty: content.difficulty,
+          status: c.status,
+          targetValue: content.targetValue,
+          currentValue: content.currentValue ?? 0,
+          xpReward: content.xpReward,
+          generatedAt: c.generatedAt,
+          expiresAt: c.expiresAt,
+        };
+      }),
+    };
   },
 });
 

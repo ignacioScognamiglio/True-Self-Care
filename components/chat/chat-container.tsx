@@ -30,6 +30,10 @@ const SUGGESTIONS = [
   "Que patrones ves en mis datos?",
   "Como afecta el ejercicio a mi sueno?",
   "Dame un resumen de mi semana",
+  "Cual es mi nivel actual y cuanto XP tengo?",
+  "Que logros tengo desbloqueados?",
+  "Como va mi challenge semanal?",
+  "Quiero usar un streak freeze",
 ] as const;
 
 export function ChatContainer() {

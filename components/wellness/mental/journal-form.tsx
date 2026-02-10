@@ -99,6 +99,7 @@ export function JournalForm({ initialPrompt, onSuccess, onCancel }: JournalFormP
         <Input
           id="title"
           placeholder="Ej: Reflexion de hoy..."
+          aria-required="true"
           {...register("title")}
         />
         {errors.title && (
@@ -112,6 +113,7 @@ export function JournalForm({ initialPrompt, onSuccess, onCancel }: JournalFormP
           id="content"
           placeholder="Escribi lo que sientas..."
           rows={10}
+          aria-required="true"
           {...register("content")}
         />
         {errors.content && (
@@ -142,6 +144,7 @@ export function JournalForm({ initialPrompt, onSuccess, onCancel }: JournalFormP
                   type="button"
                   onClick={() => removeTag(tag)}
                   className="ml-1"
+                  aria-label="Eliminar etiqueta"
                 >
                   <X className="size-3" />
                 </button>

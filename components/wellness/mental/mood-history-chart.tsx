@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
   ChartContainer,
@@ -29,9 +29,13 @@ const MOOD_EMOJIS: Record<string, string> = {
 };
 
 export function MoodHistoryChart() {
-  const history = useQuery(api.functions.mental.getMoodHistory, { days: 7 });
+  const { results: history, status } = usePaginatedQuery(
+    api.functions.mental.getMoodHistory,
+    { days: 7 },
+    { initialNumItems: 200 }
+  );
 
-  if (!history) {
+  if (status === "LoadingFirstPage") {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
         Cargando...

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,31 @@ export function MoodCheckinForm({ onSuccess }: MoodCheckinFormProps) {
       : [...arr, item];
   }
 
+  const handleMoodKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const currentIndex = selectedMood
+        ? MOODS.findIndex((m) => m.value === selectedMood)
+        : -1;
+      let nextIndex = currentIndex;
+
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        nextIndex = (currentIndex + 1) % MOODS.length;
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        nextIndex = (currentIndex - 1 + MOODS.length) % MOODS.length;
+      } else {
+        return;
+      }
+
+      setSelectedMood(MOODS[nextIndex].value);
+      const container = e.currentTarget as HTMLElement;
+      const buttons = container.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+      buttons[nextIndex]?.focus();
+    },
+    [selectedMood]
+  );
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedMood) {
@@ -106,23 +131,34 @@ export function MoodCheckinForm({ onSuccess }: MoodCheckinFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Mood Selection */}
       <div className="space-y-3">
-        <Label>Como te sentis?</Label>
-        <div className="grid grid-cols-4 gap-3">
-          {MOODS.map((mood) => (
-            <button
-              key={mood.value}
-              type="button"
-              onClick={() => setSelectedMood(mood.value)}
-              className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition-colors ${
-                selectedMood === mood.value
-                  ? "border-primary bg-primary/10"
-                  : "border-muted hover:border-muted-foreground/30"
-              }`}
-            >
-              <span className="text-2xl">{mood.emoji}</span>
-              <span className="text-xs font-medium">{mood.label}</span>
-            </button>
-          ))}
+        <Label id="mood-label">Como te sentis?</Label>
+        <div
+          role="radiogroup"
+          aria-labelledby="mood-label"
+          className="grid grid-cols-4 gap-3"
+          onKeyDown={handleMoodKeyDown}
+        >
+          {MOODS.map((mood, index) => {
+            const isSelected = selectedMood === mood.value;
+            return (
+              <button
+                key={mood.value}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                tabIndex={isSelected || (!selectedMood && index === 0) ? 0 : -1}
+                onClick={() => setSelectedMood(mood.value)}
+                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition-colors ${
+                  isSelected
+                    ? "border-primary bg-primary/10"
+                    : "border-muted hover:border-muted-foreground/30"
+                }`}
+              >
+                <span className="text-2xl">{mood.emoji}</span>
+                <span className="text-xs font-medium">{mood.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -146,18 +182,24 @@ export function MoodCheckinForm({ onSuccess }: MoodCheckinFormProps) {
       {/* Emotions */}
       <div className="space-y-3">
         <Label>Emociones (opcional)</Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Emociones">
           {EMOTIONS.map((emotion) => (
-            <Badge
+            <button
               key={emotion}
-              variant={selectedEmotions.includes(emotion) ? "default" : "outline"}
-              className="cursor-pointer capitalize"
+              type="button"
+              role="checkbox"
+              aria-checked={selectedEmotions.includes(emotion)}
               onClick={() =>
                 setSelectedEmotions(toggleItem(selectedEmotions, emotion))
               }
             >
-              {emotion}
-            </Badge>
+              <Badge
+                variant={selectedEmotions.includes(emotion) ? "default" : "outline"}
+                className="cursor-pointer capitalize pointer-events-none"
+              >
+                {emotion}
+              </Badge>
+            </button>
           ))}
         </div>
       </div>
@@ -165,18 +207,24 @@ export function MoodCheckinForm({ onSuccess }: MoodCheckinFormProps) {
       {/* Triggers */}
       <div className="space-y-3">
         <Label>Triggers (opcional)</Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Triggers">
           {TRIGGERS.map((trigger) => (
-            <Badge
+            <button
               key={trigger}
-              variant={selectedTriggers.includes(trigger) ? "default" : "outline"}
-              className="cursor-pointer capitalize"
+              type="button"
+              role="checkbox"
+              aria-checked={selectedTriggers.includes(trigger)}
               onClick={() =>
                 setSelectedTriggers(toggleItem(selectedTriggers, trigger))
               }
             >
-              {trigger}
-            </Badge>
+              <Badge
+                variant={selectedTriggers.includes(trigger) ? "default" : "outline"}
+                className="cursor-pointer capitalize pointer-events-none"
+              >
+                {trigger}
+              </Badge>
+            </button>
           ))}
         </div>
       </div>

@@ -9,8 +9,8 @@ import {
 import { startOfDay } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 import { internal } from "../_generated/api";
-import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
 import { Id } from "../_generated/dataModel";
 
 // ═══ TYPES ═══
@@ -551,9 +551,17 @@ Responde en formato JSON (solo el array, sin markdown):
 ]`;
 
     try {
-      const { text } = await generateText({
-        model: google("gemini-2.5-flash"),
+      const startTime = Date.now();
+      const { text, usage } = await generateText({
+        model: getModelForTask("generate_insights"),
         prompt,
+      });
+      logTokenUsage({
+        task: "generate_insights",
+        model: "gemini-2.5-flash",
+        inputTokens: usage?.inputTokens,
+        outputTokens: usage?.outputTokens,
+        durationMs: Date.now() - startTime,
       });
 
       // Parse JSON from response

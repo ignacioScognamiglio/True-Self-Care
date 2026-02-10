@@ -154,7 +154,7 @@ export function SleepLogForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="bed-time">Hora de acostarse</Label>
-          <Input id="bed-time" type="time" {...register("bedTime")} />
+          <Input id="bed-time" type="time" aria-required="true" {...register("bedTime")} />
           {errors.bedTime && (
             <p className="text-sm text-destructive">
               {errors.bedTime.message}
@@ -163,7 +163,7 @@ export function SleepLogForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="wake-time">Hora de despertar</Label>
-          <Input id="wake-time" type="time" {...register("wakeTime")} />
+          <Input id="wake-time" type="time" aria-required="true" {...register("wakeTime")} />
           {errors.wakeTime && (
             <p className="text-sm text-destructive">
               {errors.wakeTime.message}

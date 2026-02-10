@@ -161,6 +161,7 @@ export function MealPlanEditor({
                 size="icon"
                 className="size-7 text-muted-foreground hover:text-destructive"
                 onClick={() => removeDay(dayIndex)}
+                aria-label="Eliminar dia"
               >
                 <Trash2 className="size-3.5" />
               </Button>
@@ -201,6 +202,7 @@ export function MealPlanEditor({
                     size="icon"
                     className="size-6"
                     onClick={() => removeMeal(dayIndex, mealIndex)}
+                    aria-label="Eliminar comida"
                   >
                     <Trash2 className="size-3" />
                   </Button>

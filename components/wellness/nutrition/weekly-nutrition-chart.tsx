@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,11 +19,13 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function WeeklyNutritionChart() {
-  const history = useQuery(api.functions.nutrition.getNutritionHistory, {
-    days: 7,
-  });
+  const { results: history, status } = usePaginatedQuery(
+    api.functions.nutrition.getNutritionHistory,
+    { days: 7 },
+    { initialNumItems: 200 }
+  );
 
-  if (!history) {
+  if (status === "LoadingFirstPage") {
     return (
       <Card>
         <CardHeader>
