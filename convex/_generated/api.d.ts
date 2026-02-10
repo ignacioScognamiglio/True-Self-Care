@@ -14,6 +14,7 @@ import type * as agents_mental from "../agents/mental.js";
 import type * as agents_nutrition from "../agents/nutrition.js";
 import type * as agents_orchestrator from "../agents/orchestrator.js";
 import type * as agents_safety from "../agents/safety.js";
+import type * as agents_sleep from "../agents/sleep.js";
 import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as functions_files from "../functions/files.js";
@@ -24,6 +25,7 @@ import type * as functions_mental from "../functions/mental.js";
 import type * as functions_notifications from "../functions/notifications.js";
 import type * as functions_nutrition from "../functions/nutrition.js";
 import type * as functions_plans from "../functions/plans.js";
+import type * as functions_sleep from "../functions/sleep.js";
 import type * as functions_wellness from "../functions/wellness.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -33,11 +35,13 @@ import type * as prompts_mental from "../prompts/mental.js";
 import type * as prompts_nutrition from "../prompts/nutrition.js";
 import type * as prompts_orchestrator from "../prompts/orchestrator.js";
 import type * as prompts_safety from "../prompts/safety.js";
+import type * as prompts_sleep from "../prompts/sleep.js";
 import type * as reminders from "../reminders.js";
 import type * as tools_fitnessTools from "../tools/fitnessTools.js";
 import type * as tools_habitTools from "../tools/habitTools.js";
 import type * as tools_mentalHealthTools from "../tools/mentalHealthTools.js";
 import type * as tools_nutritionTools from "../tools/nutritionTools.js";
+import type * as tools_sleepTools from "../tools/sleepTools.js";
 import type * as users from "../users.js";
 
 import type {
@@ -53,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   "agents/nutrition": typeof agents_nutrition;
   "agents/orchestrator": typeof agents_orchestrator;
   "agents/safety": typeof agents_safety;
+  "agents/sleep": typeof agents_sleep;
   chat: typeof chat;
   crons: typeof crons;
   "functions/files": typeof functions_files;
@@ -63,6 +68,7 @@ declare const fullApi: ApiFromModules<{
   "functions/notifications": typeof functions_notifications;
   "functions/nutrition": typeof functions_nutrition;
   "functions/plans": typeof functions_plans;
+  "functions/sleep": typeof functions_sleep;
   "functions/wellness": typeof functions_wellness;
   http: typeof http;
   "lib/auth": typeof lib_auth;
@@ -72,11 +78,13 @@ declare const fullApi: ApiFromModules<{
   "prompts/nutrition": typeof prompts_nutrition;
   "prompts/orchestrator": typeof prompts_orchestrator;
   "prompts/safety": typeof prompts_safety;
+  "prompts/sleep": typeof prompts_sleep;
   reminders: typeof reminders;
   "tools/fitnessTools": typeof tools_fitnessTools;
   "tools/habitTools": typeof tools_habitTools;
   "tools/mentalHealthTools": typeof tools_mentalHealthTools;
   "tools/nutritionTools": typeof tools_nutritionTools;
+  "tools/sleepTools": typeof tools_sleepTools;
   users: typeof users;
 }>;
 

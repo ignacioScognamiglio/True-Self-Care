@@ -335,6 +335,97 @@ export const getSleepHistory = query({
   },
 });
 
+export const getSleepStatsInternal = internalQuery({
+  args: {
+    userId: v.id("users"),
+    days: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const numDays = args.days ?? 30;
+    const startTime = Date.now() - numDays * 24 * 60 * 60 * 1000;
+
+    const entries = await ctx.db
+      .query("wellnessEntries")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", args.userId).eq("type", "sleep")
+      )
+      .filter((q) => q.gte(q.field("timestamp"), startTime))
+      .collect();
+
+    if (entries.length === 0) {
+      return {
+        averageDuration: 0,
+        averageQualityScore: 0,
+        averageBedTime: "00:00",
+        averageWakeTime: "00:00",
+        bestNight: null,
+        worstNight: null,
+        totalNightsLogged: 0,
+        consistencyScore: 0,
+        commonFactors: [],
+      };
+    }
+
+    let totalDuration = 0;
+    let totalScore = 0;
+    const bedTimes: string[] = [];
+    const wakeTimes: string[] = [];
+    let best: { date: number; qualityScore: number } | null = null;
+    let worst: { date: number; qualityScore: number } | null = null;
+    const factorCounts = new Map<string, number>();
+
+    for (const entry of entries) {
+      const data = entry.data as any;
+      totalDuration += data.durationMinutes ?? 0;
+      const qs = data.qualityScore ?? 0;
+      totalScore += qs;
+      bedTimes.push(data.bedTime);
+      wakeTimes.push(data.wakeTime);
+
+      if (!best || qs > best.qualityScore) {
+        best = { date: entry.timestamp, qualityScore: qs };
+      }
+      if (!worst || qs < worst.qualityScore) {
+        worst = { date: entry.timestamp, qualityScore: qs };
+      }
+
+      for (const factor of data.factors ?? []) {
+        factorCounts.set(factor, (factorCounts.get(factor) ?? 0) + 1);
+      }
+    }
+
+    const avgBedTime = calculateAverageTime(bedTimes);
+    const [avgH, avgM] = avgBedTime.split(":").map(Number);
+    const avgBedMinutes = avgH * 60 + avgM;
+    let consistentNights = 0;
+    for (const bt of bedTimes) {
+      const [h, m] = bt.split(":").map(Number);
+      let btMinutes = h * 60 + m;
+      if (h < 6) btMinutes += 24 * 60;
+      let adjustedAvg = avgBedMinutes;
+      if (avgH < 6) adjustedAvg += 24 * 60;
+      const diff = Math.abs(btMinutes - adjustedAvg);
+      if (diff <= 30) consistentNights++;
+    }
+
+    const commonFactors = Array.from(factorCounts.entries())
+      .map(([factor, count]) => ({ factor, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      averageDuration: Math.round(totalDuration / entries.length),
+      averageQualityScore: Math.round(totalScore / entries.length),
+      averageBedTime: avgBedTime,
+      averageWakeTime: calculateAverageTime(wakeTimes),
+      bestNight: best,
+      worstNight: worst,
+      totalNightsLogged: entries.length,
+      consistencyScore: Math.round((consistentNights / entries.length) * 100),
+      commonFactors,
+    };
+  },
+});
+
 export const getSleepStats = query({
   args: { days: v.optional(v.number()) },
   handler: async (ctx, args) => {

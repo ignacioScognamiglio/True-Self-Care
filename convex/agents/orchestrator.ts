@@ -30,6 +30,14 @@ import {
   suggestExercise,
   logCrisisIncident,
 } from "../tools/mentalHealthTools";
+import {
+  logSleep,
+  getSleepSummary,
+  getSleepHistory,
+  getSleepStats,
+  createSleepRoutine,
+  analyzeSleepFactors,
+} from "../tools/sleepTools";
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
@@ -40,6 +48,7 @@ export const orchestratorAgent = new Agent(components.agent, {
     logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary,
     logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
     logMood, getMoodHistory, createJournalEntry, getJournalEntries, suggestExercise, logCrisisIncident,
+    logSleep, getSleepSummary, getSleepHistory, getSleepStats, createSleepRoutine, analyzeSleepFactors,
   },
   maxSteps: 3,
 });
