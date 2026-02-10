@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import dynamic from "next/dynamic";
 import { SleepLogForm } from "@/components/wellness/sleep/sleep-log-form";
 import { SleepStats } from "@/components/wellness/sleep/sleep-stats";
-import { SleepChart } from "@/components/wellness/sleep/sleep-chart";
 import { SleepHistory } from "@/components/wellness/sleep/sleep-history";
 import { SleepRoutineView } from "@/components/wellness/sleep/sleep-routine-view";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,15 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
+
+const SleepChart = dynamic(
+  () =>
+    import("@/components/wellness/sleep/sleep-chart").then((mod) => ({
+      default: mod.SleepChart,
+    })),
+  { loading: () => <ChartSkeleton /> }
+);
 
 export default function SleepPage() {
   const [open, setOpen] = useState(false);

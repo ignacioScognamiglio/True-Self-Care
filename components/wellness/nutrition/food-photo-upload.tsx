@@ -196,6 +196,7 @@ export function FoodPhotoUpload({
                 size="icon"
                 className="absolute -right-2 -top-2 size-7 rounded-full"
                 onClick={handleCancel}
+                aria-label="Cancelar foto"
               >
                 <X className="size-4" />
               </Button>

@@ -1,10 +1,19 @@
+import dynamic from "next/dynamic";
 import { NutritionStats } from "@/components/wellness/nutrition/nutrition-stats";
 import { DailyMacros } from "@/components/wellness/nutrition/daily-macros";
 import { TodayMeals } from "@/components/wellness/nutrition/today-meals";
-import { WeeklyNutritionChart } from "@/components/wellness/nutrition/weekly-nutrition-chart";
 import { Button } from "@/components/ui/button";
 import { Plus, Camera, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
+
+const WeeklyNutritionChart = dynamic(
+  () =>
+    import("@/components/wellness/nutrition/weekly-nutrition-chart").then(
+      (mod) => ({ default: mod.WeeklyNutritionChart })
+    ),
+  { loading: () => <ChartSkeleton /> }
+);
 
 export default function NutritionPage() {
   return (

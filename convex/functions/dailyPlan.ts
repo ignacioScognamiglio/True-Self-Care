@@ -9,6 +9,7 @@ import { internal } from "../_generated/api";
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { getAuthenticatedUser } from "../lib/auth";
+import { logTokenUsage } from "../lib/tokenTracking";
 
 // ═══ INTERNAL ACTIONS ═══
 
@@ -139,9 +140,17 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   "insights": ["Insight relevante 1", "Insight relevante 2"]
 }`;
 
-        const { text } = await generateText({
+        const startTime = Date.now();
+        const { text, usage } = await generateText({
           model: google("gemini-2.5-flash"),
           prompt,
+        });
+        logTokenUsage({
+          task: "generate_daily_plan",
+          model: "gemini-2.5-flash",
+          inputTokens: usage?.inputTokens,
+          outputTokens: usage?.outputTokens,
+          durationMs: Date.now() - startTime,
         });
 
         // Parse JSON from response

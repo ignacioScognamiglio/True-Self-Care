@@ -92,7 +92,7 @@ function NutritionLogContent() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Volver a nutricion">
           <Link href="/dashboard/nutrition">
             <ArrowLeft className="size-4" />
           </Link>

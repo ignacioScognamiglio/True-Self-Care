@@ -79,6 +79,7 @@ export function MealCard({ meal }: MealCardProps) {
         size="icon"
         className="size-7 shrink-0"
         onClick={handleDelete}
+        aria-label="Eliminar comida"
       >
         <X className="size-3.5" />
       </Button>

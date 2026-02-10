@@ -53,6 +53,7 @@ export function TodayLog() {
                 size="icon"
                 className="size-6"
                 onClick={() => handleDelete(entry._id)}
+                aria-label="Eliminar registro de agua"
               >
                 <X className="size-3" />
               </Button>

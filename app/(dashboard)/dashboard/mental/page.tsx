@@ -1,13 +1,22 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Dumbbell, SmilePlus } from "lucide-react";
 import { MentalHealthDisclaimer } from "@/components/wellness/mental/mental-health-disclaimer";
 import { MentalStats } from "@/components/wellness/mental/mental-stats";
-import { MoodHistoryChart } from "@/components/wellness/mental/mood-history-chart";
 import { RecentCheckins } from "@/components/wellness/mental/recent-checkins";
+import { ChartSkeleton } from "@/components/ui/loading-skeletons";
+
+const MoodHistoryChart = dynamic(
+  () =>
+    import("@/components/wellness/mental/mood-history-chart").then((mod) => ({
+      default: mod.MoodHistoryChart,
+    })),
+  { loading: () => <div className="h-[200px] bg-muted animate-pulse rounded" /> }
+);
 
 export default function MentalPage() {
   return (

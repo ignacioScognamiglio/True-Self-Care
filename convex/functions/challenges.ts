@@ -9,6 +9,7 @@ import {
 import { internal } from "../_generated/api";
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { logTokenUsage } from "../lib/tokenTracking";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 import { CHALLENGE_XP_REWARDS } from "../lib/gamificationConstants";
 import { CHALLENGE_GENERATION_PROMPT } from "../prompts/challenges";
@@ -53,9 +54,17 @@ export const generateWeeklyChallenge = internalAction({
       );
 
       // 5. Call Gemini
-      const { text } = await generateText({
+      const startTime = Date.now();
+      const { text, usage } = await generateText({
         model: google("gemini-2.5-flash"),
         prompt,
+      });
+      logTokenUsage({
+        task: "generate_weekly_challenge",
+        model: "gemini-2.5-flash",
+        inputTokens: usage?.inputTokens,
+        outputTokens: usage?.outputTokens,
+        durationMs: Date.now() - startTime,
       });
 
       // 6. Parse response

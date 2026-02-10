@@ -90,7 +90,7 @@ export function ChallengeCard({ compact }: ChallengeCardProps) {
               {challenge.difficulty}
             </Badge>
             {!compact && (
-              <Button variant="ghost" size="icon" className="size-6" onClick={handleDismiss}>
+              <Button variant="ghost" size="icon" className="size-6" onClick={handleDismiss} aria-label="Descartar challenge">
                 <X className="size-3" />
               </Button>
             )}

@@ -59,6 +59,7 @@ export function HabitCard({ habit, isCompletedToday }: HabitCardProps) {
           className={`size-8 shrink-0 ${isCompletedToday ? "bg-green-600 hover:bg-green-600" : ""}`}
           disabled={isCompletedToday}
           onClick={handleComplete}
+          aria-label={isCompletedToday ? "Habito completado" : "Completar habito"}
         >
           <Check className="size-4" />
         </Button>
@@ -93,7 +94,7 @@ export function HabitCard({ habit, isCompletedToday }: HabitCardProps) {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="size-8 shrink-0">
+          <Button variant="ghost" size="icon" className="size-8 shrink-0" aria-label="Opciones del habito">
             <MoreVertical className="size-4" />
           </Button>
         </DropdownMenuTrigger>

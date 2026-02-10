@@ -47,6 +47,7 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
           onClick={handleSend}
           disabled={!value.trim() || isStreaming}
           className="shrink-0 rounded-xl"
+          aria-label="Enviar mensaje"
         >
           <Send className="size-4" />
         </Button>
