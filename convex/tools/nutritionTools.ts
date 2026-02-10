@@ -50,25 +50,53 @@ export const analyzeFoodImage = createTool({
 });
 
 export const createMealPlan = createTool({
-  description: "Crea un plan de comidas personalizado para el usuario",
+  description:
+    "Crea un plan de comidas personalizado con dias y comidas detalladas",
   args: z.object({
-    goal: z
+    title: z
       .string()
-      .describe("Objetivo del plan (ej: perder peso, ganar musculo)"),
-    dailyCalories: z.number().describe("Calorias diarias objetivo"),
-    daysCount: z.number().describe("Numero de dias del plan (1-7)"),
-    restrictions: z
-      .array(z.string())
+      .describe("Titulo del plan (ej: Plan de comidas para ganar musculo)"),
+    objective: z
+      .string()
       .optional()
-      .describe("Restricciones alimentarias"),
+      .describe("Objetivo del plan (ej: perder peso, ganar musculo)"),
+    dailyCalories: z
+      .number()
+      .optional()
+      .describe("Calorias diarias objetivo"),
+    days: z
+      .array(
+        z.object({
+          day: z.string().describe("Nombre del dia (ej: Lunes)"),
+          meals: z.array(
+            z.object({
+              name: z
+                .string()
+                .describe("Nombre de la comida (ej: Avena con banana y miel)"),
+              calories: z.number().describe("Calorias de la comida"),
+              protein: z.number().describe("Proteina en gramos"),
+              carbs: z.number().describe("Carbohidratos en gramos"),
+              fat: z.number().describe("Grasas en gramos"),
+              mealType: z
+                .string()
+                .describe("Tipo: breakfast, lunch, dinner o snack"),
+              ingredients: z
+                .array(z.string())
+                .optional()
+                .describe("Lista de ingredientes"),
+            })
+          ),
+        })
+      )
+      .describe("Array de dias con comidas completas"),
   }),
   handler: async (ctx, args): Promise<string> => {
     const userId = ctx.userId as Id<"users">;
     const planContent = {
-      goal: args.goal,
+      title: args.title,
+      objective: args.objective,
       dailyCalories: args.dailyCalories,
-      daysCount: args.daysCount,
-      restrictions: args.restrictions ?? [],
+      days: args.days,
       generatedAt: Date.now(),
     };
     await ctx.runMutation(internal.functions.plans.createPlan, {
@@ -76,7 +104,11 @@ export const createMealPlan = createTool({
       type: "meal",
       content: planContent,
     });
-    return `Plan de comidas creado: ${args.daysCount} dias, objetivo ${args.dailyCalories} kcal/dia, meta: ${args.goal}`;
+    const totalMeals = args.days.reduce(
+      (sum, d) => sum + d.meals.length,
+      0
+    );
+    return `Plan de comidas "${args.title}" creado: ${args.days.length} dias, ${totalMeals} comidas totales.`;
   },
 });
 

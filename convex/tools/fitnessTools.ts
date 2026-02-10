@@ -49,27 +49,51 @@ export const logExercise = createTool({
 });
 
 export const createWorkoutPlan = createTool({
-  description: "Crea un plan de entrenamiento personalizado",
+  description:
+    "Crea un plan de entrenamiento personalizado con dias y ejercicios completos",
   args: z.object({
-    goal: z
+    title: z.string().describe("Titulo del plan (ej: Plan Powerlifting 4 dias)"),
+    objective: z
       .string()
-      .describe("Objetivo (ej: fuerza, hipertrofia, resistencia)"),
-    daysPerWeek: z.number().describe("Dias de entrenamiento por semana"),
-    fitnessLevel: z
-      .enum(["beginner", "intermediate", "advanced"])
-      .describe("Nivel del usuario"),
-    equipment: z
-      .array(z.string())
       .optional()
-      .describe("Equipamiento disponible"),
+      .describe("Objetivo del plan (ej: fuerza, hipertrofia, resistencia)"),
+    daysPerWeek: z.number().describe("Dias de entrenamiento por semana"),
+    days: z
+      .array(
+        z.object({
+          day: z.string().describe("Nombre del dia (ej: Dia 1)"),
+          focus: z
+            .string()
+            .describe("Enfoque del dia (ej: Squat + accesorios)"),
+          estimatedDuration: z
+            .number()
+            .optional()
+            .describe("Duracion estimada en minutos"),
+          exercises: z.array(
+            z.object({
+              name: z.string().describe("Nombre del ejercicio (ej: Sentadilla)"),
+              sets: z.number().describe("Numero de series"),
+              reps: z.string().describe("Repeticiones (ej: '5' o '8-12')"),
+              rest: z
+                .number()
+                .describe("Descanso entre series en segundos"),
+              notes: z
+                .string()
+                .optional()
+                .describe("Notas adicionales (ej: RPE 8, tempo 3-1-1)"),
+            })
+          ),
+        })
+      )
+      .describe("Array de dias con ejercicios completos"),
   }),
   handler: async (ctx, args): Promise<string> => {
     const userId = ctx.userId as Id<"users">;
     const planContent = {
-      goal: args.goal,
+      title: args.title,
+      objective: args.objective,
       daysPerWeek: args.daysPerWeek,
-      fitnessLevel: args.fitnessLevel,
-      equipment: args.equipment ?? [],
+      days: args.days,
       generatedAt: Date.now(),
     };
     await ctx.runMutation(internal.functions.plans.createPlan, {
@@ -77,7 +101,11 @@ export const createWorkoutPlan = createTool({
       type: "workout",
       content: planContent,
     });
-    return `Plan de entrenamiento creado: ${args.daysPerWeek} dias/semana, nivel ${args.fitnessLevel}, meta: ${args.goal}`;
+    const totalExercises = args.days.reduce(
+      (sum, d) => sum + d.exercises.length,
+      0
+    );
+    return `Plan de entrenamiento "${args.title}" creado: ${args.days.length} dias, ${totalExercises} ejercicios totales.`;
   },
 });
 
