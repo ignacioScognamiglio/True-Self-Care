@@ -162,3 +162,19 @@ export const getUserPlans = query({
       .collect();
   },
 });
+
+export const getActiveSleepRoutine = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
+
+    return await ctx.db
+      .query("aiPlans")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "sleep_routine")
+      )
+      .filter((q) => q.eq(q.field("status"), "active"))
+      .first();
+  },
+});
