@@ -38,6 +38,10 @@ import {
   createSleepRoutine,
   analyzeSleepFactors,
 } from "../tools/sleepTools";
+import {
+  getCrossDomainInsights,
+  getCorrelations,
+} from "../tools/insightTools";
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
@@ -49,6 +53,7 @@ export const orchestratorAgent = new Agent(components.agent, {
     logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
     logMood, getMoodHistory, createJournalEntry, getJournalEntries, suggestExercise, logCrisisIncident,
     logSleep, getSleepSummary, getSleepHistory, getSleepStats, createSleepRoutine, analyzeSleepFactors,
+    getCrossDomainInsights, getCorrelations,
   },
   maxSteps: 3,
 });
