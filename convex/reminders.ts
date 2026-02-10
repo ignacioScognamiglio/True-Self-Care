@@ -170,6 +170,39 @@ export const checkWorkoutReminder = internalMutation({
   },
 });
 
+export const checkMoodCheckin = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const todayStart = startOfDay(new Date()).getTime();
+
+    for (const user of users) {
+      if (!user.preferences?.notificationsEnabled) continue;
+      if (!user.preferences?.activeModules?.includes("mental")) continue;
+
+      const moodEntries = await ctx.db
+        .query("wellnessEntries")
+        .withIndex("by_user_type", (q) =>
+          q.eq("userId", user._id).eq("type", "mood")
+        )
+        .filter((q) => q.gte(q.field("timestamp"), todayStart))
+        .first();
+
+      if (!moodEntries) {
+        await ctx.db.insert("notifications", {
+          userId: user._id,
+          type: "mood_checkin_reminder",
+          title: "Check-in emocional",
+          body: "No olvides registrar como te sentis hoy",
+          read: false,
+          actionUrl: "/dashboard/mental/checkin",
+          createdAt: Date.now(),
+        });
+      }
+    }
+  },
+});
+
 export const resetMissedStreaks = internalMutation({
   args: {},
   handler: async (ctx) => {

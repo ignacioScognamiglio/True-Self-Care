@@ -22,6 +22,14 @@ import {
   getExerciseSummary,
   getWorkoutHistory,
 } from "../tools/fitnessTools";
+import {
+  logMood,
+  getMoodHistory,
+  createJournalEntry,
+  getJournalEntries,
+  suggestExercise,
+  logCrisisIncident,
+} from "../tools/mentalHealthTools";
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
@@ -31,6 +39,7 @@ export const orchestratorAgent = new Agent(components.agent, {
     logWater, trackHabit, getHabits, getWaterIntake, createHabit,
     logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary,
     logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
+    logMood, getMoodHistory, createJournalEntry, getJournalEntries, suggestExercise, logCrisisIncident,
   },
   maxSteps: 3,
 });

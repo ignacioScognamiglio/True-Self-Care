@@ -39,4 +39,10 @@ crons.daily(
   internal.reminders.checkWorkoutReminder
 );
 
+crons.daily(
+  "mood-checkin-reminder",
+  { hourUTC: 23, minuteUTC: 0 },
+  internal.reminders.checkMoodCheckin
+);
+
 export default crons;

@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, UtensilsCrossed, Dumbbell, Target } from "lucide-react";
+import { Droplets, UtensilsCrossed, Dumbbell, Target, Brain } from "lucide-react";
 
 
 function formatMl(ml: number) {
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const habitSummary = useQuery(api.functions.habits.getTodayCompletionsSummary);
   const nutritionSummary = useQuery(api.functions.nutrition.getTodayNutritionSummaryPublic);
   const exerciseSummary = useQuery(api.functions.fitness.getTodayExerciseSummaryPublic);
+  const moodSummary = useQuery(api.functions.mental.getTodayMoodSummaryPublic);
 
   const hydrationValue = waterIntake
     ? `${formatMl(waterIntake.totalMl)} / 2.5L`
@@ -48,6 +49,24 @@ export default function DashboardPage() {
       : "Completa habitos para iniciar racha"
     : "Empieza a registrar";
 
+  const moodEmojis: Record<string, string> = {
+    feliz: "\u{1F60A}",
+    calmado: "\u{1F60C}",
+    neutral: "\u{1F610}",
+    triste: "\u{1F622}",
+    ansioso: "\u{1F630}",
+    enojado: "\u{1F621}",
+    estresado: "\u{1F624}",
+    agotado: "\u{1F634}",
+  };
+
+  const moodValue = moodSummary?.hasCheckedIn
+    ? `${moodEmojis[moodSummary.latestMood!] ?? ""} ${moodSummary.latestMood}`
+    : "\u2014";
+  const moodSub = moodSummary?.hasCheckedIn
+    ? `Intensidad ${moodSummary.latestIntensity}/10`
+    : "Hace tu check-in";
+
   const quickStats = [
     {
       title: "Hidratacion",
@@ -77,6 +96,13 @@ export default function DashboardPage() {
       icon: Target,
       color: "text-purple-500",
     },
+    {
+      title: "Animo",
+      value: moodValue,
+      sub: moodSub,
+      icon: Brain,
+      color: "text-wellness-mental",
+    },
   ];
 
   return (
@@ -87,7 +113,7 @@ export default function DashboardPage() {
           Your personalized wellness overview
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {quickStats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
