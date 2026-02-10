@@ -5,6 +5,7 @@ import {
   internalMutation,
   internalQuery,
 } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { startOfDay } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 
@@ -22,13 +23,20 @@ export const logMoodEntry = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("wellnessEntries", {
+    const entryId = await ctx.db.insert("wellnessEntries", {
       userId: args.userId,
       type: "mood",
       data: args.mood,
       timestamp: Date.now(),
       source: "ai",
     });
+
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: args.userId,
+      action: "mood",
+    });
+
+    return entryId;
   },
 });
 
@@ -81,13 +89,20 @@ export const createJournalEntry = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("wellnessEntries", {
+    const entryId = await ctx.db.insert("wellnessEntries", {
       userId: args.userId,
       type: "journal",
       data: args.journal,
       timestamp: Date.now(),
       source: "ai",
     });
+
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: args.userId,
+      action: "journal",
+    });
+
+    return entryId;
   },
 });
 

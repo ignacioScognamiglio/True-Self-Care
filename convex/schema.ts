@@ -81,7 +81,8 @@ export default defineSchema({
       v.literal("workout"),
       v.literal("skincare_routine"),
       v.literal("sleep_routine"),
-      v.literal("weekly")
+      v.literal("weekly"),
+      v.literal("challenge")
     ),
     content: v.any(),
     status: v.union(
@@ -152,6 +153,33 @@ export default defineSchema({
   })
     .index("by_user_read", ["userId", "read"])
     .index("by_user_time", ["userId", "createdAt"]),
+
+  // ═══ GAMIFICATION ═══
+  gamification: defineTable({
+    userId: v.id("users"),
+    totalXP: v.number(),
+    level: v.number(),
+    currentLevelXP: v.number(),
+    xpToNextLevel: v.number(),
+    streakFreezes: v.number(),
+    lastStreakFreezeUsedAt: v.optional(v.number()),
+    lastStreakFreezeEarnedAt: v.optional(v.number()),
+    lastXPActionAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_level", ["level"])
+    .index("by_total_xp", ["totalXP"]),
+
+  // ═══ ACHIEVEMENTS ═══
+  achievements: defineTable({
+    userId: v.id("users"),
+    code: v.string(),
+    earnedAt: v.number(),
+    xpAwarded: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_code", ["userId", "code"]),
 
   // ═══ PUSH SUBSCRIPTIONS ═══
   pushSubscriptions: defineTable({

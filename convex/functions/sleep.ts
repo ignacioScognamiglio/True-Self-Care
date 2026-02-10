@@ -5,6 +5,7 @@ import {
   internalMutation,
   internalQuery,
 } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { startOfDay } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 
@@ -111,7 +112,7 @@ export const logSleepEntry = internalMutation({
       interruptions: args.sleep.interruptions,
     });
 
-    return await ctx.db.insert("wellnessEntries", {
+    const entryId = await ctx.db.insert("wellnessEntries", {
       userId: args.userId,
       type: "sleep",
       data: {
@@ -122,6 +123,13 @@ export const logSleepEntry = internalMutation({
       timestamp: Date.now(),
       source: "ai",
     });
+
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: args.userId,
+      action: "sleep",
+    });
+
+    return entryId;
   },
 });
 

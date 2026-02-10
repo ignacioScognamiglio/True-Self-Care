@@ -5,6 +5,7 @@ import {
   internalQuery,
   internalMutation,
 } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { startOfDay, isToday, isYesterday } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
@@ -127,6 +128,11 @@ export const completeHabit = internalMutation({
       longestStreak: newLongest,
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: args.userId,
+      action: "habit",
+    });
+
     return { habitId: habit._id, currentStreak: newStreak, longestStreak: newLongest };
   },
 });
@@ -243,6 +249,11 @@ export const completeHabitPublic = mutation({
     await ctx.db.patch(args.habitId, {
       currentStreak: newStreak,
       longestStreak: newLongest,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: user._id,
+      action: "habit",
     });
 
     return { habitId: args.habitId, currentStreak: newStreak, longestStreak: newLongest, alreadyCompleted: false };

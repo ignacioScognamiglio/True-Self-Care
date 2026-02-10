@@ -73,4 +73,11 @@ crons.interval(
   internal.reminders.checkSleepReminder
 );
 
+// Streak freeze semanal: lunes 10:00 UTC (7am ART)
+crons.weekly(
+  "earn-streak-freeze",
+  { dayOfWeek: "monday", hourUTC: 10, minuteUTC: 0 },
+  internal.functions.gamification.earnStreakFreezeAll
+);
+
 export default crons;

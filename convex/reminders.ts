@@ -1,6 +1,7 @@
 import { internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { startOfDay, subDays } from "date-fns";
+import { startOfDay, subDays, differenceInDays } from "date-fns";
+import { STREAK_FREEZE_COOLDOWN_DAYS } from "./lib/gamificationConstants";
 
 export const checkHydration = internalMutation({
   args: {},
@@ -397,6 +398,31 @@ export const resetMissedStreaks = internalMutation({
         .first();
 
       if (!completions) {
+        // Check if user has a streak freeze available
+        const gamificationRow = await ctx.db
+          .query("gamification")
+          .withIndex("by_user", (q) => q.eq("userId", habit.userId))
+          .unique();
+
+        if (gamificationRow && gamificationRow.streakFreezes > 0) {
+          const canUseFreeze =
+            !gamificationRow.lastStreakFreezeUsedAt ||
+            differenceInDays(
+              new Date(),
+              new Date(gamificationRow.lastStreakFreezeUsedAt)
+            ) >= STREAK_FREEZE_COOLDOWN_DAYS;
+
+          if (canUseFreeze) {
+            // Use freeze: preserve streak
+            await ctx.db.patch(gamificationRow._id, {
+              streakFreezes: gamificationRow.streakFreezes - 1,
+              lastStreakFreezeUsedAt: Date.now(),
+            });
+            continue;
+          }
+        }
+
+        // No freeze available: reset streak
         await ctx.db.patch(habit._id, { currentStreak: 0 });
       }
     }

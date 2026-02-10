@@ -5,6 +5,7 @@ import {
   internalMutation,
   internalQuery,
 } from "../_generated/server";
+import { internal } from "../_generated/api";
 import { startOfDay } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 
@@ -26,13 +27,20 @@ export const logExerciseEntry = internalMutation({
     }),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("wellnessEntries", {
+    const entryId = await ctx.db.insert("wellnessEntries", {
       userId: args.userId,
       type: "exercise",
       data: args.exercise,
       timestamp: Date.now(),
       source: "ai",
     });
+
+    await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
+      userId: args.userId,
+      action: "exercise",
+    });
+
+    return entryId;
   },
 });
 
