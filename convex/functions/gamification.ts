@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import {
   query,
   internalMutation,
+  internalQuery,
 } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
@@ -340,6 +341,31 @@ export const earnStreakFreezeAll = internalMutation({
         lastStreakFreezeEarnedAt: Date.now(),
       });
     }
+  },
+});
+
+// ═══ INTERNAL QUERIES ═══
+
+export const getUserAchievementsInternal = internalQuery({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const earned = await ctx.db
+      .query("achievements")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    return earned.map((a) => {
+      const def = ACHIEVEMENTS.find((d) => d.code === a.code);
+      return {
+        code: a.code,
+        name: def?.name ?? a.code,
+        description: def?.description ?? "",
+        category: def?.category ?? "principiante",
+        icon: def?.icon ?? "Star",
+        earnedAt: a.earnedAt,
+        xpAwarded: a.xpAwarded,
+      };
+    });
   },
 });
 

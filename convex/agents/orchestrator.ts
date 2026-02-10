@@ -42,6 +42,13 @@ import {
   getCrossDomainInsights,
   getCorrelations,
 } from "../tools/insightTools";
+import {
+  getXPProfile,
+  getAchievementsList,
+  getActiveChallengeInfo,
+  getChallengeHistory,
+  useStreakFreezeAction,
+} from "../tools/gamificationTools";
 
 export const orchestratorAgent = new Agent(components.agent, {
   name: "Orquestador",
@@ -54,6 +61,7 @@ export const orchestratorAgent = new Agent(components.agent, {
     logMood, getMoodHistory, createJournalEntry, getJournalEntries, suggestExercise, logCrisisIncident,
     logSleep, getSleepSummary, getSleepHistory, getSleepStats, createSleepRoutine, analyzeSleepFactors,
     getCrossDomainInsights, getCorrelations,
+    getXPProfile, getAchievementsList, getActiveChallengeInfo, getChallengeHistory, useStreakFreezeAction,
   },
   maxSteps: 3,
 });

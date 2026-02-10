@@ -129,6 +129,12 @@ export const logSleepEntry = internalMutation({
       action: "sleep",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "sleep_logs",
+      incrementBy: 1,
+    });
+
     return entryId;
   },
 });

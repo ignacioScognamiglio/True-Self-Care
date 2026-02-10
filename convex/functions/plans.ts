@@ -15,7 +15,8 @@ const planTypeValidator = v.union(
   v.literal("workout"),
   v.literal("skincare_routine"),
   v.literal("sleep_routine"),
-  v.literal("weekly")
+  v.literal("weekly"),
+  v.literal("challenge")
 );
 
 const planStatusValidator = v.union(

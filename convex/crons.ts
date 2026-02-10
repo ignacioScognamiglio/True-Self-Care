@@ -80,4 +80,11 @@ crons.weekly(
   internal.functions.gamification.earnStreakFreezeAll
 );
 
+// Challenge semanal: lunes 11:00 UTC (8am ART)
+crons.weekly(
+  "generate-weekly-challenge",
+  { dayOfWeek: "monday", hourUTC: 11, minuteUTC: 0 },
+  internal.functions.challenges.generateWeeklyChallengeAll
+);
+
 export default crons;

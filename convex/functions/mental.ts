@@ -36,6 +36,12 @@ export const logMoodEntry = internalMutation({
       action: "mood",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "mood_checkins",
+      incrementBy: 1,
+    });
+
     return entryId;
   },
 });
@@ -100,6 +106,12 @@ export const createJournalEntry = internalMutation({
     await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
       userId: args.userId,
       action: "journal",
+    });
+
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "journal_entries",
+      incrementBy: 1,
     });
 
     return entryId;

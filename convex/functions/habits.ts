@@ -133,6 +133,12 @@ export const completeHabit = internalMutation({
       action: "habit",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "habit_completions",
+      incrementBy: 1,
+    });
+
     return { habitId: habit._id, currentStreak: newStreak, longestStreak: newLongest };
   },
 });
@@ -254,6 +260,12 @@ export const completeHabitPublic = mutation({
     await ctx.scheduler.runAfter(0, internal.functions.gamification.awardXP, {
       userId: user._id,
       action: "habit",
+    });
+
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: user._id,
+      metric: "habit_completions",
+      incrementBy: 1,
     });
 
     return { habitId: args.habitId, currentStreak: newStreak, longestStreak: newLongest, alreadyCompleted: false };

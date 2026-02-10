@@ -30,6 +30,12 @@ export const logWaterEntry = internalMutation({
       action: "water",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "water_count",
+      incrementBy: 1,
+    });
+
     return entryId;
   },
 });

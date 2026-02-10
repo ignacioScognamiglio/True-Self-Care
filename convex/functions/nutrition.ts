@@ -40,6 +40,12 @@ export const logMealEntry = internalMutation({
       action: "meal",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "meal_count",
+      incrementBy: 1,
+    });
+
     return entryId;
   },
 });

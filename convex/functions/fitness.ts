@@ -40,6 +40,12 @@ export const logExerciseEntry = internalMutation({
       action: "exercise",
     });
 
+    await ctx.scheduler.runAfter(0, internal.functions.challenges.updateChallengeProgress, {
+      userId: args.userId,
+      metric: "exercise_sessions",
+      incrementBy: 1,
+    });
+
     return entryId;
   },
 });
