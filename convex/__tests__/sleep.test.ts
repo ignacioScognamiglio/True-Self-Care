@@ -364,4 +364,64 @@ describe("calcSleepStats", () => {
     expect(stats.bestNight?.qualityScore).toBe(89);
     expect(stats.worstNight?.qualityScore).toBe(89);
   });
+
+  test("commonFactors ordena por frecuencia descendente", () => {
+    const now = Date.now();
+    const stats = calcSleepStats([
+      {
+        timestamp: now - 86400000 * 4,
+        data: {
+          bedTime: "23:00", wakeTime: "07:00", quality: 3,
+          durationMinutes: 480, factors: ["estres", "cafeina"],
+        } as SleepData,
+      },
+      {
+        timestamp: now - 86400000 * 3,
+        data: {
+          bedTime: "23:00", wakeTime: "07:00", quality: 4,
+          durationMinutes: 480, factors: ["estres", "pantallas"],
+        } as SleepData,
+      },
+      {
+        timestamp: now - 86400000 * 2,
+        data: {
+          bedTime: "23:00", wakeTime: "07:00", quality: 4,
+          durationMinutes: 480, factors: ["estres"],
+        } as SleepData,
+      },
+      {
+        timestamp: now - 86400000,
+        data: {
+          bedTime: "23:00", wakeTime: "07:00", quality: 5,
+          durationMinutes: 480, factors: ["meditacion"],
+        } as SleepData,
+      },
+    ]);
+
+    expect(stats.commonFactors[0].factor).toBe("estres");
+    expect(stats.commonFactors[0].count).toBe(3);
+    expect(stats.commonFactors.length).toBeGreaterThanOrEqual(3);
+  });
+
+  test("bestNight y worstNight usan qualityScore calculado si no viene", () => {
+    const now = Date.now();
+    const stats = calcSleepStats([
+      {
+        timestamp: now - 86400000,
+        data: {
+          bedTime: "23:00", wakeTime: "07:00", quality: 5,
+          durationMinutes: 480, interruptions: 0,
+        } as SleepData,
+      },
+      {
+        timestamp: now,
+        data: {
+          bedTime: "02:00", wakeTime: "05:00", quality: 1,
+          durationMinutes: 180, interruptions: 4,
+        } as SleepData,
+      },
+    ]);
+
+    expect(stats.bestNight!.qualityScore).toBeGreaterThan(stats.worstNight!.qualityScore);
+  });
 });

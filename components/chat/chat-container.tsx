@@ -22,6 +22,8 @@ const SUGGESTIONS = [
   "Hice 4 series de press banca con 80kg",
   "Creame una rutina de entrenamiento",
   "Cuales son mis personal records?",
+  "Me siento ansioso",
+  "Quiero hacer un ejercicio de respiracion",
   "Dormi de 23:30 a 7:00, calidad buena",
   "Como dormi esta semana?",
   "Creame una rutina para dormir mejor",
