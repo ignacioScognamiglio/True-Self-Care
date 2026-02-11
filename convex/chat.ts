@@ -6,6 +6,7 @@ import { listUIMessages, syncStreams, vStreamArgs } from "@convex-dev/agent";
 import { orchestratorAgent } from "./agents/orchestrator";
 import { safetyAgent } from "./agents/safety";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "./lib/auth";
+import { checkRateLimit } from "./lib/rateLimiter";
 
 // ═══ MUTATIONS ═══
 
@@ -30,6 +31,14 @@ export const initiateStream = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUser(ctx);
+
+    // Rate limit check
+    const rateLimit = await checkRateLimit(ctx, user._id);
+    if (!rateLimit.allowed) {
+      throw new Error(
+        "Has alcanzado tu limite de uso de IA. Intenta de nuevo manana o contacta soporte para aumentar tu cuota."
+      );
+    }
 
     const { messageId } = await orchestratorAgent.saveMessage(ctx, {
       threadId: args.threadId,
@@ -133,6 +142,15 @@ export const getUserThreads = query({
     );
 
     return result.page;
+  },
+});
+
+export const getRateLimitStatus = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
+    return checkRateLimit(ctx, user._id);
   },
 });
 
