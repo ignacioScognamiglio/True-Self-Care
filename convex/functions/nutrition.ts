@@ -262,7 +262,8 @@ export const getNutritionHistory = query({
 export const getMealsByDate = query({
   args: { date: v.number() },
   handler: async (ctx, args) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     const dayStart = startOfDay(new Date(args.date)).getTime();
     const dayEnd = dayStart + 24 * 60 * 60 * 1000;

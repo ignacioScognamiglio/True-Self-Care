@@ -1,10 +1,11 @@
 import { query } from "../_generated/server";
-import { getAuthenticatedUser } from "../lib/auth";
+import { getAuthenticatedUserOrNull } from "../lib/auth";
 
 export const exportUserData = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
     const userId = user._id;
 
     const healthProfiles = await ctx.db
