@@ -8,7 +8,7 @@ import {
 import { internal } from "../_generated/api";
 import { generateText } from "ai";
 import { getAuthenticatedUser } from "../lib/auth";
-import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
+import { getModelForTask, persistTokenUsage } from "../lib/modelConfig";
 
 // ═══ INTERNAL ACTIONS ═══
 
@@ -144,7 +144,8 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
           model: getModelForTask("generate_daily_plan"),
           prompt,
         });
-        logTokenUsage({
+        await persistTokenUsage(ctx, {
+          userId: user._id,
           task: "generate_daily_plan",
           model: "gemini-2.5-flash",
           inputTokens: usage?.inputTokens,
@@ -305,7 +306,8 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
           model: getModelForTask("generate_weekly_summary"),
           prompt,
         });
-        logTokenUsage({
+        await persistTokenUsage(ctx, {
+          userId: user._id,
           task: "generate_weekly_summary",
           model: "gemini-2.5-flash",
           inputTokens: weeklyUsage?.inputTokens,

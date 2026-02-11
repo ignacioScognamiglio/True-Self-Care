@@ -36,19 +36,6 @@ export const logMeal = createTool({
   },
 });
 
-export const analyzeFoodImage = createTool({
-  description:
-    "Analiza una foto de comida y estima calorias y macros. Usa cuando el usuario envie una foto de su comida.",
-  args: z.object({
-    imageDescription: z
-      .string()
-      .describe("Descripcion de lo que se ve en la foto de comida"),
-  }),
-  handler: async (_ctx, args): Promise<string> => {
-    return `Analisis de la foto: ${args.imageDescription}\n\nPara registrar esta comida, usa la herramienta logMeal con los valores estimados basados en lo que se ve en la foto. Recuerda que es una estimacion basada en la imagen.`;
-  },
-});
-
 export const createMealPlan = createTool({
   description:
     "Crea un plan de comidas personalizado con dias y comidas detalladas",

@@ -11,7 +11,6 @@ import {
 } from "../tools/habitTools";
 import {
   logMeal,
-  analyzeFoodImage,
   createMealPlan,
   getNutritionSummary,
 } from "../tools/nutritionTools";
@@ -56,7 +55,7 @@ export const orchestratorAgent = new Agent(components.agent, {
   instructions: ORCHESTRATOR_SYSTEM_PROMPT,
   tools: {
     logWater, trackHabit, getHabits, getWaterIntake, createHabit,
-    logMeal, analyzeFoodImage, createMealPlan, getNutritionSummary,
+    logMeal, createMealPlan, getNutritionSummary,
     logExercise, createWorkoutPlan, adjustIntensity, getExerciseSummary, getWorkoutHistory,
     logMood, getMoodHistory, createJournalEntry, getJournalEntries, suggestExercise, logCrisisIncident,
     logSleep, getSleepSummary, getSleepHistory, getSleepStats, createSleepRoutine, analyzeSleepFactors,

@@ -9,7 +9,7 @@ import {
 } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { generateText } from "ai";
-import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
+import { getModelForTask, persistTokenUsage } from "../lib/modelConfig";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 import { CHALLENGE_XP_REWARDS } from "../lib/gamificationConstants";
 import { CHALLENGE_GENERATION_PROMPT } from "../prompts/challenges";
@@ -59,7 +59,8 @@ export const generateWeeklyChallenge = internalAction({
         model: getModelForTask("generate_weekly_challenge"),
         prompt,
       });
-      logTokenUsage({
+      await persistTokenUsage(ctx, {
+        userId: args.userId,
         task: "generate_weekly_challenge",
         model: "gemini-2.5-flash",
         inputTokens: usage?.inputTokens,

@@ -69,11 +69,25 @@ export const getCurrentUser = query({
   },
 });
 
+const VALID_MODULES = [
+  "skincare",
+  "nutrition",
+  "fitness",
+  "mental",
+  "sleep",
+  "habits",
+] as const;
+
 export const updatePreferences = mutation({
   args: {
     notificationsEnabled: v.optional(v.boolean()),
     wakeUpTime: v.optional(v.string()),
     bedTime: v.optional(v.string()),
+    activeModules: v.optional(v.array(v.string())),
+    unitSystem: v.optional(
+      v.union(v.literal("metric"), v.literal("imperial"))
+    ),
+    language: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -97,7 +111,44 @@ export const updatePreferences = mutation({
     if (args.bedTime !== undefined) {
       updatedPreferences.bedTime = args.bedTime;
     }
+    if (args.activeModules !== undefined) {
+      updatedPreferences.activeModules = args.activeModules.filter((m) =>
+        (VALID_MODULES as readonly string[]).includes(m)
+      );
+    }
+    if (args.unitSystem !== undefined) {
+      updatedPreferences.unitSystem = args.unitSystem;
+    }
+    if (args.language !== undefined) {
+      updatedPreferences.language = args.language;
+    }
 
     await ctx.db.patch(user._id, { preferences: updatedPreferences });
+  },
+});
+
+export const updateProfile = mutation({
+  args: {
+    name: v.optional(v.string()),
+    avatar: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    const patch: Record<string, string> = {};
+    if (args.name !== undefined) patch.name = args.name;
+    if (args.avatar !== undefined) patch.avatar = args.avatar;
+
+    if (Object.keys(patch).length > 0) {
+      await ctx.db.patch(user._id, patch);
+    }
   },
 });

@@ -181,6 +181,20 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_code", ["userId", "code"]),
 
+  // ═══ AI USAGE TRACKING ═══
+  aiUsage: defineTable({
+    userId: v.optional(v.id("users")),
+    task: v.string(),
+    model: v.string(),
+    inputTokens: v.number(),
+    outputTokens: v.number(),
+    durationMs: v.number(),
+    timestamp: v.number(),
+  })
+    .index("by_user_timestamp", ["userId", "timestamp"])
+    .index("by_task_timestamp", ["task", "timestamp"])
+    .index("by_model_timestamp", ["model", "timestamp"]),
+
   // ═══ PUSH SUBSCRIPTIONS ═══
   pushSubscriptions: defineTable({
     userId: v.id("users"),

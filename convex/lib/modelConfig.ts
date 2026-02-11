@@ -1,4 +1,7 @@
 import { google } from "@ai-sdk/google";
+import { ActionCtx } from "../_generated/server";
+import { internal } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
 
 // ═══ MODEL INSTANCES ═══
 
@@ -42,4 +45,33 @@ export function logTokenUsage(params: {
       `in=${params.inputTokens ?? "?"} out=${params.outputTokens ?? "?"} ` +
       `duration=${params.durationMs ?? "?"}ms`
   );
+}
+
+/**
+ * Persist token usage to DB. Call from internalAction contexts.
+ */
+export async function persistTokenUsage(
+  ctx: ActionCtx,
+  params: {
+    userId?: Id<"users">;
+    task: string;
+    model: string;
+    inputTokens?: number;
+    outputTokens?: number;
+    durationMs?: number;
+  }
+) {
+  logTokenUsage(params);
+  try {
+    await ctx.runMutation(internal.functions.aiUsage.logUsage, {
+      userId: params.userId,
+      task: params.task,
+      model: params.model,
+      inputTokens: params.inputTokens ?? 0,
+      outputTokens: params.outputTokens ?? 0,
+      durationMs: params.durationMs ?? 0,
+    });
+  } catch (e) {
+    console.error("[AI-TOKENS] Failed to persist usage:", e);
+  }
 }

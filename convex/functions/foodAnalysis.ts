@@ -147,3 +147,54 @@ export const getFoodAnalysisResult = query({
     };
   },
 });
+
+export const getPastFoodPhotos = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
+
+    const photos = await ctx.db
+      .query("progressPhotos")
+      .withIndex("by_user_type", (q) =>
+        q.eq("userId", user._id).eq("type", "food")
+      )
+      .order("desc")
+      .take(args.limit ?? 20);
+
+    const withUrls = await Promise.all(
+      photos.map(async (photo) => {
+        const url = await ctx.storage.getUrl(photo.storageId);
+        return { ...photo, url };
+      })
+    );
+
+    return withUrls;
+  },
+});
+
+export const updateFoodPhotoAnalysis = mutation({
+  args: {
+    photoId: v.id("progressPhotos"),
+    analysis: v.object({
+      foods: v.array(v.string()),
+      calories: v.number(),
+      protein: v.number(),
+      carbs: v.number(),
+      fat: v.number(),
+      description: v.string(),
+      mealType: v.string(),
+      storageId: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthenticatedUser(ctx);
+    const photo = await ctx.db.get(args.photoId);
+
+    if (!photo || photo.userId !== user._id) {
+      throw new Error("Photo not found");
+    }
+
+    await ctx.db.patch(args.photoId, { aiAnalysis: args.analysis });
+  },
+});
