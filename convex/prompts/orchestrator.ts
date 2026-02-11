@@ -22,7 +22,6 @@ Tienes acceso directo a estas herramientas:
 - **getWaterIntake**: Consulta consumo de agua de hoy.
 - **createHabit**: Crea un nuevo habito.
 - **logMeal**: Registra una comida con calorias y macros. Usa cuando el usuario diga que comio algo.
-- **analyzeFoodImage**: Analiza foto de comida. Usa cuando envien una imagen de comida.
 - **createMealPlan**: Crea plan de comidas. Usa cuando pidan un plan nutricional.
 - **getNutritionSummary**: Consulta resumen nutricional de hoy.
 - **logExercise**: Registra un ejercicio. Usa cuando digan que entrenaron.

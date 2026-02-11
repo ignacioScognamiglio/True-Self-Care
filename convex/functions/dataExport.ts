@@ -62,6 +62,11 @@ export const exportUserData = query({
       .withIndex("by_user_timestamp", (q) => q.eq("userId", userId))
       .collect();
 
+    const responseCache = await ctx.db
+      .query("responseCache")
+      .withIndex("by_user_task_hash", (q) => q.eq("userId", userId))
+      .collect();
+
     return {
       exportedAt: new Date().toISOString(),
       user: {
@@ -82,6 +87,7 @@ export const exportUserData = query({
       achievements,
       pushSubscriptions,
       aiUsage,
+      responseCache,
     };
   },
 });

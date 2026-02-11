@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
+import { invalidateUserCache } from "./lib/responseCache";
 
 export const upsertFromClerk = internalMutation({
   args: {
@@ -124,6 +125,9 @@ export const updatePreferences = mutation({
     }
 
     await ctx.db.patch(user._id, { preferences: updatedPreferences });
+
+    // Invalidate response cache when preferences change
+    await invalidateUserCache(ctx, user._id);
   },
 });
 
@@ -149,6 +153,9 @@ export const updateProfile = mutation({
 
     if (Object.keys(patch).length > 0) {
       await ctx.db.patch(user._id, patch);
+
+      // Invalidate response cache when profile changes
+      await invalidateUserCache(ctx, user._id);
     }
   },
 });

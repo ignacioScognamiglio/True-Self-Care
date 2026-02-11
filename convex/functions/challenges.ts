@@ -53,22 +53,39 @@ export const generateWeeklyChallenge = internalAction({
         JSON.stringify(userData, null, 2)
       );
 
-      // 5. Call Gemini
-      const startTime = Date.now();
-      const { text, usage, providerMetadata } = await generateText({
-        model: getModelForTask("generate_weekly_challenge"),
-        prompt,
-      });
-      const googleMeta = (providerMetadata as any)?.google?.usageMetadata;
-      await persistTokenUsage(ctx, {
-        userId: args.userId,
-        task: "generate_weekly_challenge",
-        model: "gemini-2.5-flash",
-        inputTokens: usage?.inputTokens,
-        outputTokens: usage?.outputTokens,
-        cachedTokens: googleMeta?.cachedContentTokenCount,
-        durationMs: Date.now() - startTime,
-      });
+      // 5. Check response cache
+      const cached = await ctx.runQuery(
+        internal.functions.responseCache.check,
+        { userId: args.userId, taskType: "generate_weekly_challenge", prompt }
+      );
+
+      let text: string;
+      if (cached) {
+        text = cached;
+      } else {
+        const startTime = Date.now();
+        const result = await generateText({
+          model: getModelForTask("generate_weekly_challenge"),
+          prompt,
+        });
+        text = result.text;
+        const googleMeta = (result.providerMetadata as any)?.google?.usageMetadata;
+        await persistTokenUsage(ctx, {
+          userId: args.userId,
+          task: "generate_weekly_challenge",
+          model: "gemini-2.5-flash",
+          inputTokens: result.usage?.inputTokens,
+          outputTokens: result.usage?.outputTokens,
+          cachedTokens: googleMeta?.cachedContentTokenCount,
+          durationMs: Date.now() - startTime,
+        });
+
+        // Save to cache
+        await ctx.runMutation(
+          internal.functions.responseCache.save,
+          { userId: args.userId, taskType: "generate_weekly_challenge", prompt, response: text }
+        );
+      }
 
       // 6. Parse response
       const cleaned = text

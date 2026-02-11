@@ -111,6 +111,15 @@ export const deleteAccount = mutation({
       await ctx.db.delete(profile._id);
     }
 
+    // 11b. Response cache
+    const cacheEntries = await ctx.db
+      .query("responseCache")
+      .withIndex("by_user_task_hash", (q) => q.eq("userId", userId))
+      .collect();
+    for (const entry of cacheEntries) {
+      await ctx.db.delete(entry._id);
+    }
+
     // 12. User record — last
     await ctx.db.delete(userId);
   },

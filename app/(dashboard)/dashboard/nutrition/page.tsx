@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { NutritionStats } from "@/components/wellness/nutrition/nutrition-stats";
 import { DailyMacros } from "@/components/wellness/nutrition/daily-macros";
 import { TodayMeals } from "@/components/wellness/nutrition/today-meals";
+import { FoodPhotosSection } from "@/components/wellness/nutrition/food-photos-section";
 import { Button } from "@/components/ui/button";
 import { Plus, Camera, Sparkles } from "lucide-react";
 import Link from "next/link";
@@ -55,6 +56,8 @@ export default function NutritionPage() {
       </div>
 
       <TodayMeals />
+
+      <FoodPhotosSection />
     </div>
   );
 }

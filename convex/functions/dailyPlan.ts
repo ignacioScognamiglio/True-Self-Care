@@ -155,21 +155,39 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   "insights": ["Insight relevante 1", "Insight relevante 2"]
 }`;
 
-    const startTime = Date.now();
-    const { text, usage, providerMetadata } = await generateText({
-      model: getModelForTask("generate_daily_plan"),
-      prompt,
-    });
-    const googleMeta = (providerMetadata as any)?.google?.usageMetadata;
-    await persistTokenUsage(ctx, {
-      userId: user._id,
-      task: "generate_daily_plan",
-      model: "gemini-2.5-flash",
-      inputTokens: usage?.inputTokens,
-      outputTokens: usage?.outputTokens,
-      cachedTokens: googleMeta?.cachedContentTokenCount,
-      durationMs: Date.now() - startTime,
-    });
+    // Check response cache
+    const cached = await ctx.runQuery(
+      internal.functions.responseCache.check,
+      { userId: user._id, taskType: "daily_plan", prompt }
+    );
+
+    let text: string;
+    if (cached) {
+      text = cached;
+    } else {
+      const startTime = Date.now();
+      const result = await generateText({
+        model: getModelForTask("generate_daily_plan"),
+        prompt,
+      });
+      text = result.text;
+      const googleMeta = (result.providerMetadata as any)?.google?.usageMetadata;
+      await persistTokenUsage(ctx, {
+        userId: user._id,
+        task: "generate_daily_plan",
+        model: "gemini-2.5-flash",
+        inputTokens: result.usage?.inputTokens,
+        outputTokens: result.usage?.outputTokens,
+        cachedTokens: googleMeta?.cachedContentTokenCount,
+        durationMs: Date.now() - startTime,
+      });
+
+      // Save to cache
+      await ctx.runMutation(
+        internal.functions.responseCache.save,
+        { userId: user._id, taskType: "daily_plan", prompt, response: text }
+      );
+    }
 
     // Parse JSON from response
     const cleaned = text
@@ -326,21 +344,39 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   ]
 }`;
 
-    const startTimeWeekly = Date.now();
-    const { text, usage: weeklyUsage, providerMetadata: weeklyMeta } = await generateText({
-      model: getModelForTask("generate_weekly_summary"),
-      prompt,
-    });
-    const weeklyGoogleMeta = (weeklyMeta as any)?.google?.usageMetadata;
-    await persistTokenUsage(ctx, {
-      userId: user._id,
-      task: "generate_weekly_summary",
-      model: "gemini-2.5-flash",
-      inputTokens: weeklyUsage?.inputTokens,
-      outputTokens: weeklyUsage?.outputTokens,
-      cachedTokens: weeklyGoogleMeta?.cachedContentTokenCount,
-      durationMs: Date.now() - startTimeWeekly,
-    });
+    // Check response cache
+    const cached = await ctx.runQuery(
+      internal.functions.responseCache.check,
+      { userId: user._id, taskType: "weekly_summary", prompt }
+    );
+
+    let text: string;
+    if (cached) {
+      text = cached;
+    } else {
+      const startTimeWeekly = Date.now();
+      const result = await generateText({
+        model: getModelForTask("generate_weekly_summary"),
+        prompt,
+      });
+      text = result.text;
+      const weeklyGoogleMeta = (result.providerMetadata as any)?.google?.usageMetadata;
+      await persistTokenUsage(ctx, {
+        userId: user._id,
+        task: "generate_weekly_summary",
+        model: "gemini-2.5-flash",
+        inputTokens: result.usage?.inputTokens,
+        outputTokens: result.usage?.outputTokens,
+        cachedTokens: weeklyGoogleMeta?.cachedContentTokenCount,
+        durationMs: Date.now() - startTimeWeekly,
+      });
+
+      // Save to cache
+      await ctx.runMutation(
+        internal.functions.responseCache.save,
+        { userId: user._id, taskType: "weekly_summary", prompt, response: text }
+      );
+    }
 
     // Parse JSON
     const cleaned = text
