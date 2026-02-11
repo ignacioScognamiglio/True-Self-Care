@@ -94,19 +94,6 @@ export function HealthStep({ modules, onNext, onBack }: HealthStepProps) {
     onNext(data);
   };
 
-  const hasQuestions =
-    modules.includes("skincare") ||
-    modules.includes("nutrition") ||
-    modules.includes("fitness") ||
-    modules.includes("sleep") ||
-    modules.includes("habits");
-
-  if (!hasQuestions) {
-    // If only mental is selected, skip this step
-    onNext({});
-    return null;
-  }
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

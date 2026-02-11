@@ -181,11 +181,12 @@ export function FitnessAnimation() {
 }
 
 // ═══ Mental: Mood selector sliding from sad to happy ═══
+const moods = ["😔", "😐", "🙂", "😊", "😄"];
+
 export function MentalAnimation() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
   const [selected, setSelected] = useState(0);
-  const moods = ["😔", "😐", "🙂", "😊", "😄"];
 
   useEffect(() => {
     if (!inView) return;
@@ -193,7 +194,7 @@ export function MentalAnimation() {
       setSelected((s) => (s < moods.length - 1 ? s + 1 : 0));
     }, 800);
     return () => clearInterval(interval);
-  }, [inView, moods.length]);
+  }, [inView]);
 
   return (
     <div ref={ref} className="flex items-center justify-center h-32">
@@ -234,7 +235,7 @@ export function SleepAnimation() {
   const maxH = 10;
 
   return (
-    <div ref={ref} className="flex items-end justify-center h-32 gap-1.5 px-4 pb-4">
+    <div ref={ref} className="relative flex items-end justify-center h-32 gap-1.5 px-4 pb-4">
       {days.map((d, i) => {
         const pct = (d.hours / maxH) * 100;
         return (

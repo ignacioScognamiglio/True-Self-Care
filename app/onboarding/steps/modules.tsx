@@ -8,6 +8,7 @@ import {
   Moon,
   Droplets,
 } from "lucide-react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "convex/react";
@@ -80,6 +81,7 @@ interface ModulesStepProps {
 
 export function ModulesStep({ selected, onSelect, onNext }: ModulesStepProps) {
   const updateModules = useMutation(api.functions.onboarding.updateActiveModules);
+  const [saving, setSaving] = useState(false);
 
   const toggle = (id: string) => {
     if (selected.includes(id)) {
@@ -90,8 +92,13 @@ export function ModulesStep({ selected, onSelect, onNext }: ModulesStepProps) {
   };
 
   const handleNext = async () => {
-    await updateModules({ activeModules: selected });
-    onNext();
+    setSaving(true);
+    try {
+      await updateModules({ activeModules: selected });
+      onNext();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -142,7 +149,7 @@ export function ModulesStep({ selected, onSelect, onNext }: ModulesStepProps) {
         <Button
           size="lg"
           onClick={handleNext}
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || saving}
           className="w-full sm:w-auto"
         >
           Continuar ({selected.length} seleccionados)

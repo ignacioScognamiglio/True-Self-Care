@@ -13,12 +13,23 @@ import { PlanStep } from "./steps/plan";
 import { analytics } from "@/lib/analytics";
 import { Loader2 } from "lucide-react";
 
-const STEPS = ["welcome", "modules", "profile", "health", "plan"] as const;
+const ALL_STEPS = ["welcome", "modules", "profile", "health", "plan"] as const;
+
+function needsHealthStep(modules: string[]) {
+  return (
+    modules.includes("skincare") ||
+    modules.includes("nutrition") ||
+    modules.includes("fitness") ||
+    modules.includes("sleep") ||
+    modules.includes("habits")
+  );
+}
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [profileData, setProfileData] = useState<ProfileData>({});
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
   const user = useQuery(api.users.getCurrentUser);
   const saveHealthProfile = useMutation(
@@ -49,11 +60,16 @@ export default function OnboardingPage() {
     return null;
   }
 
-  const progress = ((currentStep + 1) / STEPS.length) * 100;
+  // Filter steps based on selected modules
+  const steps = ALL_STEPS.filter(
+    (step) => step !== "health" || needsHealthStep(selectedModules)
+  );
+  const currentStepName = steps[currentStep];
+  const progress = ((currentStep + 1) / steps.length) * 100;
 
   const next = () => {
-    analytics.onboardingStepCompleted(STEPS[currentStep]);
-    setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+    analytics.onboardingStepCompleted(steps[currentStep]);
+    setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
   };
 
   const back = () => setCurrentStep((s) => Math.max(s - 1, 0));
@@ -64,22 +80,26 @@ export default function OnboardingPage() {
   };
 
   const handleHealthNext = async (data: HealthData) => {
-    // Save combined profile + health data
-    await saveHealthProfile({
-      age: profileData.age,
-      gender: profileData.gender,
-      height: profileData.height,
-      weight: profileData.weight,
-      skinType: data.skinType,
-      skinConcerns: data.skinConcerns,
-      dietaryRestrictions: data.dietaryRestrictions,
-      allergies: data.allergies,
-      fitnessLevel: data.fitnessLevel,
-      healthGoals: data.healthGoals,
-      sleepBedTime: data.sleepBedTime,
-      sleepWakeTime: data.sleepWakeTime,
-    });
-    next();
+    setSaving(true);
+    try {
+      await saveHealthProfile({
+        age: profileData.age,
+        gender: profileData.gender,
+        height: profileData.height,
+        weight: profileData.weight,
+        skinType: data.skinType,
+        skinConcerns: data.skinConcerns,
+        dietaryRestrictions: data.dietaryRestrictions,
+        allergies: data.allergies,
+        fitnessLevel: data.fitnessLevel,
+        healthGoals: data.healthGoals,
+        sleepBedTime: data.sleepBedTime,
+        sleepWakeTime: data.sleepWakeTime,
+      });
+      next();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -87,29 +107,29 @@ export default function OnboardingPage() {
       <div className="mx-auto w-full max-w-2xl px-4 py-4">
         <Progress value={progress} className="h-2" />
         <p className="text-xs text-muted-foreground mt-1">
-          Paso {currentStep + 1} de {STEPS.length}
+          Paso {currentStep + 1} de {steps.length}
         </p>
       </div>
       <div className="flex-1 flex items-center justify-center px-4 pb-12">
-        {STEPS[currentStep] === "welcome" && <WelcomeStep onNext={next} />}
-        {STEPS[currentStep] === "modules" && (
+        {currentStepName === "welcome" && <WelcomeStep onNext={next} />}
+        {currentStepName === "modules" && (
           <ModulesStep
             selected={selectedModules}
             onSelect={setSelectedModules}
             onNext={next}
           />
         )}
-        {STEPS[currentStep] === "profile" && (
+        {currentStepName === "profile" && (
           <ProfileStep onNext={handleProfileNext} onBack={back} />
         )}
-        {STEPS[currentStep] === "health" && (
+        {currentStepName === "health" && (
           <HealthStep
             modules={selectedModules}
             onNext={handleHealthNext}
             onBack={back}
           />
         )}
-        {STEPS[currentStep] === "plan" && (
+        {currentStepName === "plan" && (
           <PlanStep modules={selectedModules} />
         )}
       </div>

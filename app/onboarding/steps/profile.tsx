@@ -33,10 +33,13 @@ export function ProfileStep({ onNext, onBack }: ProfileStepProps) {
 
   const handleSubmit = () => {
     const data: ProfileData = {};
-    if (age) data.age = parseInt(age);
+    const parsedAge = parseInt(age, 10);
+    if (!isNaN(parsedAge)) data.age = parsedAge;
     if (gender) data.gender = gender;
-    if (height) data.height = parseFloat(height);
-    if (weight) data.weight = parseFloat(weight);
+    const parsedHeight = parseFloat(height);
+    if (!isNaN(parsedHeight)) data.height = parsedHeight;
+    const parsedWeight = parseFloat(weight);
+    if (!isNaN(parsedWeight)) data.weight = parsedWeight;
     onNext(data);
   };
 
