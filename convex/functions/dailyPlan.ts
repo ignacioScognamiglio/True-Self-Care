@@ -12,6 +12,13 @@ import { getModelForTask, persistTokenUsage } from "../lib/modelConfig";
 
 // ═══ INTERNAL ACTIONS ═══
 
+const BATCH_SIZE = 10;
+const BATCH_DELAY_MS = 1000;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export const generateDailyPlan = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -21,69 +28,78 @@ export const generateDailyPlan = internalAction({
       {}
     );
 
-    for (const user of users) {
-      try {
-        // 1. Gather recent data (3 days)
-        const recentData = await ctx.runQuery(
-          internal.functions.insights.gatherCrossDomainData,
-          { userId: user._id, days: 3 }
-        );
+    // Process in batches to avoid API throttling
+    for (let i = 0; i < users.length; i += BATCH_SIZE) {
+      if (i > 0) await sleep(BATCH_DELAY_MS);
+      const batch = users.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((user) => processDailyPlanForUser(ctx, user)));
+    }
+  },
+});
 
-        const daysData = (recentData as any).days;
+async function processDailyPlanForUser(ctx: any, user: any) {
+  try {
+    // 1. Gather recent data (3 days)
+    const recentData = await ctx.runQuery(
+      internal.functions.insights.gatherCrossDomainData,
+      { userId: user._id, days: 3 }
+    );
 
-        // Check if user has enough data (at least 1 active day)
-        const activeDays = daysData.filter(
-          (d: any) =>
-            d.sleep.logged ||
-            d.nutrition.mealCount > 0 ||
-            d.fitness.exerciseCount > 0 ||
-            d.mood.checkInCount > 0 ||
-            d.habits.completedCount > 0 ||
-            d.hydration.totalMl > 0
-        );
+    const daysData = (recentData as any).days;
 
-        if (activeDays.length === 0) continue;
+    // Check if user has enough data (at least 1 active day)
+    const activeDays = daysData.filter(
+      (d: any) =>
+        d.sleep.logged ||
+        d.nutrition.mealCount > 0 ||
+        d.fitness.exerciseCount > 0 ||
+        d.mood.checkInCount > 0 ||
+        d.habits.completedCount > 0 ||
+        d.hydration.totalMl > 0
+    );
 
-        // 2. Get active plans
-        const mealPlan = await ctx.runQuery(
-          internal.functions.plans.getActivePlan,
-          { userId: user._id, type: "meal" }
-        );
-        const workoutPlan = await ctx.runQuery(
-          internal.functions.plans.getActivePlan,
-          { userId: user._id, type: "workout" }
-        );
-        const sleepRoutine = await ctx.runQuery(
-          internal.functions.plans.getActivePlan,
-          { userId: user._id, type: "sleep_routine" }
-        );
+    if (activeDays.length === 0) return;
 
-        // 3. Get recent insights
-        const insights = await ctx.runQuery(
-          internal.functions.insights.getRecentInsightsInternal,
-          { userId: user._id, limit: 5 }
-        );
+    // 2. Get active plans
+    const mealPlan = await ctx.runQuery(
+      internal.functions.plans.getActivePlan,
+      { userId: user._id, type: "meal" }
+    );
+    const workoutPlan = await ctx.runQuery(
+      internal.functions.plans.getActivePlan,
+      { userId: user._id, type: "workout" }
+    );
+    const sleepRoutine = await ctx.runQuery(
+      internal.functions.plans.getActivePlan,
+      { userId: user._id, type: "sleep_routine" }
+    );
 
-        // 4. Build the prompt
-        const now = new Date();
-        const daysOfWeek = [
-          "Domingo", "Lunes", "Martes", "Miercoles",
-          "Jueves", "Viernes", "Sabado",
-        ];
-        const dayOfWeek = daysOfWeek[now.getDay()];
-        const date = now.toLocaleDateString("es-AR", {
-          day: "2-digit",
-          month: "2-digit",
-        });
+    // 3. Get recent insights
+    const insights = await ctx.runQuery(
+      internal.functions.insights.getRecentInsightsInternal,
+      { userId: user._id, limit: 5 }
+    );
 
-        const insightsText =
-          insights.length > 0
-            ? insights
-                .map((i: any) => `- ${i.title}: ${i.body}`)
-                .join("\n")
-            : "No hay insights recientes.";
+    // 4. Build the prompt
+    const now = new Date();
+    const daysOfWeek = [
+      "Domingo", "Lunes", "Martes", "Miercoles",
+      "Jueves", "Viernes", "Sabado",
+    ];
+    const dayOfWeek = daysOfWeek[now.getDay()];
+    const date = now.toLocaleDateString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+    });
 
-        const prompt = `Genera un plan diario personalizado para hoy basado en los datos del usuario.
+    const insightsText =
+      insights.length > 0
+        ? insights
+            .map((i: any) => `- ${i.title}: ${i.body}`)
+            .join("\n")
+        : "No hay insights recientes.";
+
+    const prompt = `Genera un plan diario personalizado para hoy basado en los datos del usuario.
 
 DATOS RECIENTES (3 dias):
 ${JSON.stringify(daysData, null, 2)}
@@ -139,56 +155,56 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   "insights": ["Insight relevante 1", "Insight relevante 2"]
 }`;
 
-        const startTime = Date.now();
-        const { text, usage } = await generateText({
-          model: getModelForTask("generate_daily_plan"),
-          prompt,
-        });
-        await persistTokenUsage(ctx, {
-          userId: user._id,
-          task: "generate_daily_plan",
-          model: "gemini-2.5-flash",
-          inputTokens: usage?.inputTokens,
-          outputTokens: usage?.outputTokens,
-          durationMs: Date.now() - startTime,
-        });
+    const startTime = Date.now();
+    const { text, usage, providerMetadata } = await generateText({
+      model: getModelForTask("generate_daily_plan"),
+      prompt,
+    });
+    const googleMeta = (providerMetadata as any)?.google?.usageMetadata;
+    await persistTokenUsage(ctx, {
+      userId: user._id,
+      task: "generate_daily_plan",
+      model: "gemini-2.5-flash",
+      inputTokens: usage?.inputTokens,
+      outputTokens: usage?.outputTokens,
+      cachedTokens: googleMeta?.cachedContentTokenCount,
+      durationMs: Date.now() - startTime,
+    });
 
-        // Parse JSON from response
-        const cleaned = text
-          .replace(/```json\n?/g, "")
-          .replace(/```\n?/g, "")
-          .trim();
-        const planContent = JSON.parse(cleaned);
+    // Parse JSON from response
+    const cleaned = text
+      .replace(/```json\n?/g, "")
+      .replace(/```\n?/g, "")
+      .trim();
+    const planContent = JSON.parse(cleaned);
 
-        // Add generatedAt timestamp
-        planContent.generatedAt = Date.now();
+    // Add generatedAt timestamp
+    planContent.generatedAt = Date.now();
 
-        // 5. Save as daily plan (archives previous active plan automatically)
-        await ctx.runMutation(internal.functions.plans.createPlan, {
-          userId: user._id,
-          type: "daily",
-          content: planContent,
-          expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24h
-        });
+    // 5. Save as daily plan (archives previous active plan automatically)
+    await ctx.runMutation(internal.functions.plans.createPlan, {
+      userId: user._id,
+      type: "daily",
+      content: planContent,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24h
+    });
 
-        // 6. Create notification
-        await ctx.runMutation(
-          internal.functions.dailyPlan.createDailyPlanNotification,
-          {
-            userId: user._id,
-            title: "Tu plan del dia esta listo!",
-            body: `${planContent.title} - Revisa tu Daily Hub para ver tus tareas de hoy.`,
-          }
-        );
-      } catch (error) {
-        console.error(
-          `Error generating daily plan for user ${user._id}:`,
-          error
-        );
+    // 6. Create notification
+    await ctx.runMutation(
+      internal.functions.dailyPlan.createDailyPlanNotification,
+      {
+        userId: user._id,
+        title: "Tu plan del dia esta listo!",
+        body: `${planContent.title} - Revisa tu Daily Hub para ver tus tareas de hoy.`,
       }
-    }
-  },
-});
+    );
+  } catch (error) {
+    console.error(
+      `Error generating daily plan for user ${user._id}:`,
+      error
+    );
+  }
+}
 
 export const generateWeeklySummary = internalAction({
   args: {},
@@ -198,60 +214,69 @@ export const generateWeeklySummary = internalAction({
       {}
     );
 
-    for (const user of users) {
-      try {
-        // 1. Gather 7 days of data
-        const weekData = await ctx.runQuery(
-          internal.functions.insights.gatherCrossDomainData,
-          { userId: user._id, days: 7 }
-        );
+    // Process in batches to avoid API throttling
+    for (let i = 0; i < users.length; i += BATCH_SIZE) {
+      if (i > 0) await sleep(BATCH_DELAY_MS);
+      const batch = users.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map((user) => processWeeklySummaryForUser(ctx, user)));
+    }
+  },
+});
 
-        const daysData = (weekData as any).days;
+async function processWeeklySummaryForUser(ctx: any, user: any) {
+  try {
+    // 1. Gather 7 days of data
+    const weekData = await ctx.runQuery(
+      internal.functions.insights.gatherCrossDomainData,
+      { userId: user._id, days: 7 }
+    );
 
-        // Check if user has enough data
-        const activeDays = daysData.filter(
-          (d: any) =>
-            d.sleep.logged ||
-            d.nutrition.mealCount > 0 ||
-            d.fitness.exerciseCount > 0 ||
-            d.mood.checkInCount > 0 ||
-            d.habits.completedCount > 0 ||
-            d.hydration.totalMl > 0
-        );
+    const daysData = (weekData as any).days;
 
-        if (activeDays.length < 3) continue;
+    // Check if user has enough data
+    const activeDays = daysData.filter(
+      (d: any) =>
+        d.sleep.logged ||
+        d.nutrition.mealCount > 0 ||
+        d.fitness.exerciseCount > 0 ||
+        d.mood.checkInCount > 0 ||
+        d.habits.completedCount > 0 ||
+        d.hydration.totalMl > 0
+    );
 
-        // 2. Get correlations
-        const correlations = await ctx.runQuery(
-          internal.functions.insights.calculateCorrelations,
-          { userId: user._id, days: 7 }
-        );
+    if (activeDays.length < 3) return;
 
-        const correlationsText =
-          (correlations as any[]).length > 0
-            ? (correlations as any[])
-                .map(
-                  (c: any) =>
-                    `- ${c.label}: r=${c.correlation} (${c.strength}, ${c.direction})`
-                )
-                .join("\n")
-            : "Sin correlaciones significativas esta semana.";
+    // 2. Get correlations
+    const correlations = await ctx.runQuery(
+      internal.functions.insights.calculateCorrelations,
+      { userId: user._id, days: 7 }
+    );
 
-        // 3. Build prompt
-        const now = new Date();
-        const weekStart = new Date(
-          now.getTime() - 7 * 24 * 60 * 60 * 1000
-        );
-        const startStr = weekStart.toLocaleDateString("es-AR", {
-          day: "numeric",
-          month: "long",
-        });
-        const endStr = now.toLocaleDateString("es-AR", {
-          day: "numeric",
-          month: "long",
-        });
+    const correlationsText =
+      (correlations as any[]).length > 0
+        ? (correlations as any[])
+            .map(
+              (c: any) =>
+                `- ${c.label}: r=${c.correlation} (${c.strength}, ${c.direction})`
+            )
+            .join("\n")
+        : "Sin correlaciones significativas esta semana.";
 
-        const prompt = `Genera un resumen semanal personalizado basado en los datos del usuario de los ultimos 7 dias.
+    // 3. Build prompt
+    const now = new Date();
+    const weekStart = new Date(
+      now.getTime() - 7 * 24 * 60 * 60 * 1000
+    );
+    const startStr = weekStart.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+    });
+    const endStr = now.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+    });
+
+    const prompt = `Genera un resumen semanal personalizado basado en los datos del usuario de los ultimos 7 dias.
 
 DATOS DE LA SEMANA:
 ${JSON.stringify(daysData, null, 2)}
@@ -301,52 +326,52 @@ Responde SOLO en formato JSON (sin markdown, sin backticks):
   ]
 }`;
 
-        const startTimeWeekly = Date.now();
-        const { text, usage: weeklyUsage } = await generateText({
-          model: getModelForTask("generate_weekly_summary"),
-          prompt,
-        });
-        await persistTokenUsage(ctx, {
-          userId: user._id,
-          task: "generate_weekly_summary",
-          model: "gemini-2.5-flash",
-          inputTokens: weeklyUsage?.inputTokens,
-          outputTokens: weeklyUsage?.outputTokens,
-          durationMs: Date.now() - startTimeWeekly,
-        });
+    const startTimeWeekly = Date.now();
+    const { text, usage: weeklyUsage, providerMetadata: weeklyMeta } = await generateText({
+      model: getModelForTask("generate_weekly_summary"),
+      prompt,
+    });
+    const weeklyGoogleMeta = (weeklyMeta as any)?.google?.usageMetadata;
+    await persistTokenUsage(ctx, {
+      userId: user._id,
+      task: "generate_weekly_summary",
+      model: "gemini-2.5-flash",
+      inputTokens: weeklyUsage?.inputTokens,
+      outputTokens: weeklyUsage?.outputTokens,
+      cachedTokens: weeklyGoogleMeta?.cachedContentTokenCount,
+      durationMs: Date.now() - startTimeWeekly,
+    });
 
-        // Parse JSON
-        const cleaned = text
-          .replace(/```json\n?/g, "")
-          .replace(/```\n?/g, "")
-          .trim();
-        const summaryContent = JSON.parse(cleaned);
+    // Parse JSON
+    const cleaned = text
+      .replace(/```json\n?/g, "")
+      .replace(/```\n?/g, "")
+      .trim();
+    const summaryContent = JSON.parse(cleaned);
 
-        // 4. Save as weekly summary
-        await ctx.runMutation(internal.functions.plans.createPlan, {
-          userId: user._id,
-          type: "weekly",
-          content: summaryContent,
-        });
+    // 4. Save as weekly summary
+    await ctx.runMutation(internal.functions.plans.createPlan, {
+      userId: user._id,
+      type: "weekly",
+      content: summaryContent,
+    });
 
-        // 5. Create notification
-        await ctx.runMutation(
-          internal.functions.dailyPlan.createDailyPlanNotification,
-          {
-            userId: user._id,
-            title: "Tu resumen semanal esta listo!",
-            body: `Revisa como te fue del ${startStr} al ${endStr}.`,
-          }
-        );
-      } catch (error) {
-        console.error(
-          `Error generating weekly summary for user ${user._id}:`,
-          error
-        );
+    // 5. Create notification
+    await ctx.runMutation(
+      internal.functions.dailyPlan.createDailyPlanNotification,
+      {
+        userId: user._id,
+        title: "Tu resumen semanal esta listo!",
+        body: `Revisa como te fue del ${startStr} al ${endStr}.`,
       }
-    }
-  },
-});
+    );
+  } catch (error) {
+    console.error(
+      `Error generating weekly summary for user ${user._id}:`,
+      error
+    );
+  }
+}
 
 // ═══ HELPER QUERIES / MUTATIONS ═══
 

@@ -68,6 +68,9 @@ export const streamAsync = internalAction({
         promptMessageId: args.promptMessageId,
       } as any,
       {
+        contextOptions: {
+          recentMessages: 10,
+        },
         saveStreamDeltas: {
           chunking: "word",
           throttleMs: 100,

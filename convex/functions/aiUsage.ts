@@ -12,6 +12,7 @@ export const logUsage = internalMutation({
     model: v.string(),
     inputTokens: v.number(),
     outputTokens: v.number(),
+    cachedTokens: v.optional(v.number()),
     durationMs: v.number(),
   },
   handler: async (ctx, args) => {
@@ -21,6 +22,7 @@ export const logUsage = internalMutation({
       model: args.model,
       inputTokens: args.inputTokens,
       outputTokens: args.outputTokens,
+      cachedTokens: args.cachedTokens,
       durationMs: args.durationMs,
       timestamp: Date.now(),
     });

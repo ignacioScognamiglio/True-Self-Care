@@ -552,16 +552,18 @@ Responde en formato JSON (solo el array, sin markdown):
 
     try {
       const startTime = Date.now();
-      const { text, usage } = await generateText({
+      const { text, usage, providerMetadata } = await generateText({
         model: getModelForTask("generate_insights"),
         prompt,
       });
+      const googleMeta = (providerMetadata as any)?.google?.usageMetadata;
       await persistTokenUsage(ctx, {
         userId: args.userId,
         task: "generate_insights",
         model: "gemini-2.5-flash",
         inputTokens: usage?.inputTokens,
         outputTokens: usage?.outputTokens,
+        cachedTokens: googleMeta?.cachedContentTokenCount,
         durationMs: Date.now() - startTime,
       });
 
