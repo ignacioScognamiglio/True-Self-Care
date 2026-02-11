@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import posthog from "posthog-js";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -15,19 +16,13 @@ export function CookieConsent() {
   const acceptAll = () => {
     localStorage.setItem("cookie-consent", "all");
     setShowBanner(false);
+    if (posthog.__loaded) posthog.opt_in_capturing();
   };
 
   const acceptEssential = () => {
     localStorage.setItem("cookie-consent", "essential");
     setShowBanner(false);
-    // Disable PostHog if only essential cookies accepted
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const posthog = require("posthog-js").default;
-      posthog.opt_out_capturing();
-    } catch {
-      // PostHog not available
-    }
+    if (posthog.__loaded) posthog.opt_out_capturing();
   };
 
   if (!showBanner) return null;

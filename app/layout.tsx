@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import {
   PostHogProvider,
   PostHogIdentifier,
+  PostHogPageView,
 } from "@/components/posthog-provider";
 import { CookieConsent } from "@/components/cookie-consent";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
@@ -52,6 +53,7 @@ export default function RootLayout({
                 disableTransitionOnChange
               >
                 <PostHogIdentifier />
+                <PostHogPageView />
                 {children}
                 <CookieConsent />
               </ThemeProvider>
