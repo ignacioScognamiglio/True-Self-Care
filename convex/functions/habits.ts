@@ -332,7 +332,8 @@ export const getHabitCompletions = query({
     endDate: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     return await ctx.db
       .query("wellnessEntries")
@@ -353,7 +354,8 @@ export const getHabitCompletions = query({
 export const getHabitStats = query({
   args: { habitId: v.id("habits") },
   handler: async (ctx, args) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
     const habit = await getOwnedHabit(ctx, args.habitId, user._id);
 
     const completions = await ctx.db

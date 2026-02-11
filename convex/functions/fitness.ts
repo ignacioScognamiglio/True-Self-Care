@@ -326,7 +326,8 @@ export const getExerciseHistory = query({
 export const getPersonalRecords = query({
   args: {},
   handler: async (ctx) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     const entries = await ctx.db
       .query("wellnessEntries")

@@ -4,6 +4,7 @@ import { useState, useCallback, type KeyboardEvent } from "react";
 import { Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { analytics } from "@/lib/analytics";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -17,6 +18,7 @@ export function ChatInput({ onSend, isStreaming }: ChatInputProps) {
     const trimmed = value.trim();
     if (!trimmed || isStreaming) return;
     onSend(trimmed);
+    analytics.chatMessageSent();
     setValue("");
   }, [value, isStreaming, onSend]);
 

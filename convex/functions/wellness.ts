@@ -187,7 +187,8 @@ export const getWellnessEntriesByType = query({
     endDate: v.number(),
   },
   handler: async (ctx, args) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return [];
 
     return await ctx.db
       .query("wellnessEntries")

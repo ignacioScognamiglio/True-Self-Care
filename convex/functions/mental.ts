@@ -443,7 +443,8 @@ export const getJournalEntriesInternal = internalQuery({
 export const getJournalEntry = query({
   args: { entryId: v.id("wellnessEntries") },
   handler: async (ctx, args) => {
-    const user = await getAuthenticatedUser(ctx);
+    const user = await getAuthenticatedUserOrNull(ctx);
+    if (!user) return null;
     const entry = await ctx.db.get(args.entryId);
 
     if (!entry || entry.userId !== user._id || entry.type !== "journal") {

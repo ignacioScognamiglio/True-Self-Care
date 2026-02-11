@@ -10,7 +10,7 @@ import { startOfDay } from "date-fns";
 import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 import { internal } from "../_generated/api";
 import { generateText } from "ai";
-import { getModelForTask, logTokenUsage } from "../lib/modelConfig";
+import { getModelForTask, persistTokenUsage } from "../lib/modelConfig";
 import { Id } from "../_generated/dataModel";
 
 // ═══ TYPES ═══
@@ -551,18 +551,39 @@ Responde en formato JSON (solo el array, sin markdown):
 ]`;
 
     try {
-      const startTime = Date.now();
-      const { text, usage } = await generateText({
-        model: getModelForTask("generate_insights"),
-        prompt,
-      });
-      logTokenUsage({
-        task: "generate_insights",
-        model: "gemini-2.5-flash",
-        inputTokens: usage?.inputTokens,
-        outputTokens: usage?.outputTokens,
-        durationMs: Date.now() - startTime,
-      });
+      // Check response cache
+      const cached = await ctx.runQuery(
+        internal.functions.responseCache.check,
+        { userId: args.userId, taskType: "generate_insights", prompt }
+      );
+
+      let text: string;
+      if (cached) {
+        text = cached;
+      } else {
+        const startTime = Date.now();
+        const result = await generateText({
+          model: getModelForTask("generate_insights"),
+          prompt,
+        });
+        text = result.text;
+        const googleMeta = (result.providerMetadata as any)?.google?.usageMetadata;
+        await persistTokenUsage(ctx, {
+          userId: args.userId,
+          task: "generate_insights",
+          model: "gemini-2.5-flash",
+          inputTokens: result.usage?.inputTokens,
+          outputTokens: result.usage?.outputTokens,
+          cachedTokens: googleMeta?.cachedContentTokenCount,
+          durationMs: Date.now() - startTime,
+        });
+
+        // Save to cache
+        await ctx.runMutation(
+          internal.functions.responseCache.save,
+          { userId: args.userId, taskType: "generate_insights", prompt, response: text }
+        );
+      }
 
       // Parse JSON from response
       const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();

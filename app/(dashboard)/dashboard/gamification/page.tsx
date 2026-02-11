@@ -15,11 +15,13 @@ import { Zap, Trophy, Award, Target } from "lucide-react";
 export default function GamificationPage() {
   const profile = useQuery(api.functions.gamification.getGamificationProfile);
   const achievements = useQuery(api.functions.gamification.getAvailableAchievements);
-  const challenges = useQuery(api.functions.challenges.getChallenges, { limit: 10 });
+  const challengesResult = useQuery(api.functions.challenges.getChallenges, {
+    paginationOpts: { numItems: 10, cursor: null },
+  });
 
   const earnedCount = achievements?.filter((a) => a.earned).length ?? 0;
   const totalAchievements = achievements?.length ?? 25;
-  const completedChallenges = challenges?.filter((c) => c.status === "completed").length ?? 0;
+  const completedChallenges = challengesResult?.page.filter((c: any) => c.status === "completed").length ?? 0;
 
   return (
     <div className="space-y-6">

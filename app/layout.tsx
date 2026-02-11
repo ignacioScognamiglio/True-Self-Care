@@ -3,6 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/convex-client-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import {
+  PostHogProvider,
+  PostHogIdentifier,
+  PostHogPageView,
+} from "@/components/posthog-provider";
+import { CookieConsent } from "@/components/cookie-consent";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import "./globals.css";
 
@@ -38,16 +44,21 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClerkProvider>
-          <ConvexClientProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}
-            </ThemeProvider>
-          </ConvexClientProvider>
+          <PostHogProvider>
+            <ConvexClientProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <PostHogIdentifier />
+                <PostHogPageView />
+                {children}
+                <CookieConsent />
+              </ThemeProvider>
+            </ConvexClientProvider>
+          </PostHogProvider>
         </ClerkProvider>
       </body>
     </html>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -51,16 +51,18 @@ export function FoodPhotoUpload({
   );
 
   // When analysis result arrives, forward it
-  if (analysisResult?.aiAnalysis && state === "analyzing") {
-    const analysis = analysisResult.aiAnalysis;
-    if (analysis.error) {
-      setError(analysis.error);
-      setState("error");
-    } else {
-      setState("idle");
-      onAnalysisComplete(analysis as FoodAnalysis);
+  useEffect(() => {
+    if (analysisResult?.aiAnalysis && state === "analyzing") {
+      const analysis = analysisResult.aiAnalysis;
+      if (analysis.error) {
+        setError(analysis.error);
+        setState("error");
+      } else {
+        setState("idle");
+        onAnalysisComplete(analysis as FoodAnalysis);
+      }
     }
-  }
+  }, [analysisResult?.aiAnalysis, state, onAnalysisComplete]);
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
