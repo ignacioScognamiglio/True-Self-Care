@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import {
-  Sparkles,
   Apple,
   Dumbbell,
   Brain,
@@ -21,12 +20,6 @@ import { analytics } from "@/lib/analytics";
 import type { LucideIcon } from "lucide-react";
 
 const moduleInfo: Record<string, { icon: LucideIcon; color: string; bg: string; label: string }> = {
-  skincare: {
-    icon: Sparkles,
-    color: "text-wellness-skincare",
-    bg: "bg-wellness-skincare/15",
-    label: "Skincare",
-  },
   nutrition: {
     icon: Apple,
     color: "text-wellness-nutrition",
@@ -60,8 +53,6 @@ const moduleInfo: Record<string, { icon: LucideIcon; color: string; bg: string; 
 };
 
 const moduleTips: Record<string, string> = {
-  skincare:
-    "Vamos a trackear tu rutina y correlacionar tu piel con sueno, estres y alimentacion.",
   nutrition:
     "Registra tus comidas con fotos o texto. La IA calculara macros y sugerira mejoras.",
   fitness:

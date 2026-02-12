@@ -23,7 +23,7 @@ export default function TermsPage() {
         {APP_NAME} es una plataforma de bienestar personal que utiliza
         inteligencia artificial para ayudarte a mejorar tus habitos de salud.
         El servicio incluye tracking de multiples dimensiones de bienestar
-        (skincare, nutricion, fitness, salud mental, sueno y habitos),
+        (nutricion, fitness, salud mental, sueno y habitos),
         recomendaciones personalizadas por IA, y herramientas de gamificacion.
       </p>
 

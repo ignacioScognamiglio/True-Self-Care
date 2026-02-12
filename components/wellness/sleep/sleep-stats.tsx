@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Clock, TrendingUp, Moon } from "lucide-react";
+import { Clock, TrendingUp } from "lucide-react";
 
 export function SleepStats() {
   const today = useQuery(api.functions.sleep.getTodaySleepSummaryPublic);
@@ -12,11 +12,6 @@ export function SleepStats() {
   if (!today && !weeklyStats) {
     return null;
   }
-
-  const todayScore =
-    today?.hasLoggedSleep && today.qualityScore != null
-      ? today.qualityScore
-      : null;
 
   const todayDuration =
     today?.hasLoggedSleep && today.durationFormatted != null
@@ -28,18 +23,7 @@ export function SleepStats() {
       ? weeklyStats.averageQualityScore
       : null;
 
-  const consistency =
-    weeklyStats && weeklyStats.totalNightsLogged > 0
-      ? weeklyStats.consistencyScore
-      : null;
-
   const stats = [
-    {
-      label: "Calidad hoy",
-      value: todayScore != null ? todayScore : "--",
-      icon: Star,
-      color: "text-indigo-500",
-    },
     {
       label: "Duracion",
       value: todayDuration ?? "--",
@@ -47,21 +31,15 @@ export function SleepStats() {
       color: "text-blue-500",
     },
     {
-      label: "Promedio semanal",
+      label: "Calidad promedio",
       value: weeklyAvg != null ? weeklyAvg : "--",
       icon: TrendingUp,
       color: "text-green-500",
     },
-    {
-      label: "Consistencia",
-      value: consistency != null ? `${consistency}%` : "--",
-      icon: Moon,
-      color: "text-purple-500",
-    },
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2">
       {stats.map((stat) => (
         <Card key={stat.label}>
           <CardContent className="pt-4 pb-4">

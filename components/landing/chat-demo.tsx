@@ -5,18 +5,18 @@ import { Bot, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const USER_MESSAGE =
-  "Me siento cansado y tengo granitos, que me pasa?";
+  "Me siento cansado y estresado, que me pasa?";
 
 const BOT_RESPONSE_PARTS = [
   { text: "Detecte 3 senales conectadas:\n\n", plain: true },
   { text: "Sueno: ", color: "text-wellness-sleep", bold: true },
   { text: "Llevas 3 noches bajo 6h\n", plain: true },
-  { text: "Piel: ", color: "text-wellness-skincare", bold: true },
-  { text: "Aumento de comedones esta semana\n", plain: true },
   { text: "Estado de animo: ", color: "text-wellness-mental", bold: true },
-  { text: "Estres elevado ultimos 5 dias\n\n", plain: true },
+  { text: "Estres elevado ultimos 5 dias\n", plain: true },
+  { text: "Nutricion: ", color: "text-wellness-nutrition", bold: true },
+  { text: "Saltaste 2 comidas esta semana\n\n", plain: true },
   {
-    text: "La falta de sueno eleva el cortisol, que inflama la piel y empeora el acne. Te sugiero priorizar 8h de sueno esta semana.",
+    text: "La falta de sueno eleva el cortisol, que aumenta la ansiedad y reduce tu energia. Te sugiero priorizar 8h de sueno esta semana.",
     plain: true,
   },
 ];

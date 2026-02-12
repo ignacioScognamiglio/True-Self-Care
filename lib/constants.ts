@@ -1,10 +1,8 @@
 import {
   LayoutDashboard,
   MessageSquare,
-  Sparkles,
   Apple,
   Dumbbell,
-  Brain,
   Moon,
   Target,
   TrendingUp,
@@ -37,10 +35,8 @@ export const sidebarNavigation: NavGroup[] = [
   {
     label: "Wellness Modules",
     items: [
-      { title: "Skincare", url: "/dashboard/skincare", icon: Sparkles },
       { title: "Nutrition", url: "/dashboard/nutrition", icon: Apple },
       { title: "Fitness", url: "/dashboard/fitness", icon: Dumbbell },
-      { title: "Mental Health", url: "/dashboard/mental", icon: Brain },
       { title: "Sleep", url: "/dashboard/sleep", icon: Moon },
       { title: "Habits", url: "/dashboard/habits", icon: Target },
     ],

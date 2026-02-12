@@ -11,14 +11,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Camera, Upload, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,7 +25,7 @@ export function PhotoUploadDialog({
 }: PhotoUploadDialogProps) {
   const generateUploadUrl = useMutation(api.functions.files.generateUploadUrl);
   const uploadPhoto = useMutation(api.functions.progress.uploadProgressPhoto);
-  const [type, setType] = useState<"skin" | "body">("body");
+  const type = "body" as const;
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -100,22 +92,6 @@ export function PhotoUploadDialog({
         />
 
         <div className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label>Tipo de foto</Label>
-            <Select
-              value={type}
-              onValueChange={(v) => setType(v as "skin" | "body")}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="body">Cuerpo</SelectItem>
-                <SelectItem value="skin">Piel</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {preview ? (
             <div className="relative">
               <img

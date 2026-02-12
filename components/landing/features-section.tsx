@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Sparkles,
   Apple,
   Dumbbell,
   Brain,
@@ -11,7 +10,6 @@ import {
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  SkincareAnimation,
   NutritionAnimation,
   FitnessAnimation,
   MentalAnimation,
@@ -20,15 +18,6 @@ import {
 } from "./feature-animations";
 
 const features = [
-  {
-    icon: Sparkles,
-    color: "text-wellness-skincare",
-    bg: "bg-wellness-skincare/15",
-    title: "Skincare",
-    description:
-      "Analisis de piel con IA, tracking de rutinas y correlacion con sueno y estres.",
-    Animation: SkincareAnimation,
-  },
   {
     icon: Apple,
     color: "text-wellness-nutrition",
@@ -91,7 +80,7 @@ export function FeaturesSection({ id }: { id?: string }) {
             Modulos
           </p>
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Seis pilares de bienestar, un solo lugar
+            Cinco pilares de bienestar, un solo lugar
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Activa solo los que necesitas. Cada modulo tiene un agente de IA

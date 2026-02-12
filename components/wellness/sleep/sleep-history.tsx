@@ -4,7 +4,6 @@ import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Moon } from "lucide-react";
 import { WearableBadge } from "@/components/wellness/google-fit/wearable-badge";
 
@@ -113,14 +112,6 @@ export function SleepHistory() {
                         <span className="text-xs text-muted-foreground">
                           {formatDuration(entry.durationMinutes)}
                         </span>
-                        {entry.interruptions > 0 && (
-                          <span className="text-xs text-muted-foreground">
-                            · {entry.interruptions}{" "}
-                            {entry.interruptions === 1
-                              ? "interrupcion"
-                              : "interrupciones"}
-                          </span>
-                        )}
                       </div>
                       {factors.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -144,15 +135,6 @@ export function SleepHistory() {
                   </div>
                 );
               })}
-            {status === "CanLoadMore" && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => loadMore(20)}
-              >
-                Cargar mas
-              </Button>
-            )}
           </div>
         )}
       </CardContent>

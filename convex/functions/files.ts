@@ -15,7 +15,7 @@ export const generateUploadUrl = mutation({
 export const saveProgressPhoto = mutation({
   args: {
     storageId: v.string(),
-    type: v.union(v.literal("skin"), v.literal("body"), v.literal("food")),
+    type: v.union(v.literal("body"), v.literal("food")),
   },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUser(ctx);
@@ -41,7 +41,7 @@ export const getUrl = query({
 export const getProgressPhotos = query({
   args: {
     type: v.optional(
-      v.union(v.literal("skin"), v.literal("body"), v.literal("food"))
+      v.union(v.literal("body"), v.literal("food"))
     ),
     limit: v.optional(v.number()),
   },

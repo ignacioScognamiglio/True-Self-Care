@@ -243,7 +243,7 @@ export const checkMoodCheckin = internalMutation({
           title,
           body,
           read: false,
-          actionUrl: "/dashboard/mental/checkin",
+          actionUrl: "/dashboard/chat",
           createdAt: Date.now(),
         });
         await ctx.scheduler.runAfter(0, internal.functions.pushNotifications.sendPushNotification, {
@@ -251,7 +251,7 @@ export const checkMoodCheckin = internalMutation({
           title,
           body,
           tag: "mood_checkin_reminder",
-          actionUrl: "/dashboard/mental/checkin",
+          actionUrl: "/dashboard/chat",
         });
       }
     }

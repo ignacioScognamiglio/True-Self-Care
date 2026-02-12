@@ -33,7 +33,6 @@ const CATEGORIES = [
   { value: "nutrition", label: "Nutricion" },
   { value: "sleep", label: "Sueno" },
   { value: "mental", label: "Salud Mental" },
-  { value: "skincare", label: "Skincare" },
   { value: "habits", label: "Habitos" },
   { value: "weight", label: "Peso" },
   { value: "general", label: "General" },

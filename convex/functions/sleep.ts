@@ -38,24 +38,19 @@ export function calculateDurationMinutes(bedTime: string, wakeTime: string): num
 export function calculateQualityScore(sleep: {
   durationMinutes: number;
   quality: number;
-  interruptions?: number;
 }): number {
   let score = 0;
   const hours = sleep.durationMinutes / 60;
 
-  // Duration (40 points): 7-9h = max
-  if (hours >= 7 && hours <= 9) score += 40;
-  else if (hours >= 6 && hours < 7) score += 30;
-  else if (hours > 9 && hours <= 10) score += 30;
-  else if (hours >= 5 && hours < 6) score += 15;
+  // Duration (50 points): 7-9h = max
+  if (hours >= 7 && hours <= 9) score += 50;
+  else if (hours >= 6 && hours < 7) score += 38;
+  else if (hours > 9 && hours <= 10) score += 38;
+  else if (hours >= 5 && hours < 6) score += 20;
   else score += 5;
 
-  // Subjective quality (30 points): quality * 6
-  score += sleep.quality * 6;
-
-  // Interruptions (20 points): 0=20, 1=15, 2=10, 3=5, 4+=5
-  const interruptionPenalty = Math.min(sleep.interruptions ?? 0, 4);
-  score += Math.max(5, 20 - interruptionPenalty * 5);
+  // Subjective quality (40 points): quality * 8
+  score += sleep.quality * 8;
 
   // Consistency (10 points): default 10, adjusted when user preferences available
   score += 10;
@@ -110,7 +105,6 @@ export const logSleepEntry = internalMutation({
     const qualityScore = calculateQualityScore({
       durationMinutes,
       quality: args.sleep.quality,
-      interruptions: args.sleep.interruptions,
     });
 
     const entryId = await ctx.db.insert("wellnessEntries", {
@@ -162,7 +156,6 @@ export const logSleepEntryPublic = mutation({
     const qualityScore = calculateQualityScore({
       durationMinutes,
       quality: args.sleep.quality,
-      interruptions: args.sleep.interruptions,
     });
 
     return await ctx.db.insert("wellnessEntries", {

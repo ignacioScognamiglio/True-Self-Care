@@ -71,7 +71,6 @@ export const getCurrentUser = query({
 });
 
 const VALID_MODULES = [
-  "skincare",
   "nutrition",
   "fitness",
   "mental",

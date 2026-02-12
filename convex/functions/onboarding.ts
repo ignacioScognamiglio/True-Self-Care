@@ -23,8 +23,6 @@ export const saveHealthProfile = mutation({
     gender: v.optional(v.string()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
-    skinType: v.optional(v.string()),
-    skinConcerns: v.optional(v.array(v.string())),
     dietaryRestrictions: v.optional(v.array(v.string())),
     allergies: v.optional(v.array(v.string())),
     fitnessLevel: v.optional(v.string()),

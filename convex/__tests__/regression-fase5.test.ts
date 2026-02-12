@@ -238,7 +238,6 @@ describe("regression: plan types include challenge", () => {
       "daily",
       "meal",
       "workout",
-      "skincare_routine",
       "sleep_routine",
       "weekly",
       "challenge",
@@ -282,18 +281,15 @@ describe("regression: existing modules with gamification integration", () => {
     function calculateQualityScore(sleep: {
       durationMinutes: number;
       quality: number;
-      interruptions?: number;
     }): number {
       let score = 0;
       const hours = sleep.durationMinutes / 60;
-      if (hours >= 7 && hours <= 9) score += 40;
-      else if (hours >= 6 && hours < 7) score += 30;
-      else if (hours > 9 && hours <= 10) score += 30;
-      else if (hours >= 5 && hours < 6) score += 15;
+      if (hours >= 7 && hours <= 9) score += 50;
+      else if (hours >= 6 && hours < 7) score += 38;
+      else if (hours > 9 && hours <= 10) score += 38;
+      else if (hours >= 5 && hours < 6) score += 20;
       else score += 5;
-      score += sleep.quality * 6;
-      const penalty = Math.min(sleep.interruptions ?? 0, 4);
-      score += Math.max(5, 20 - penalty * 5);
+      score += sleep.quality * 8;
       score += 10;
       return Math.min(100, Math.max(0, score));
     }
@@ -302,9 +298,8 @@ describe("regression: existing modules with gamification integration", () => {
     const score = calculateQualityScore({
       durationMinutes: 480,
       quality: 5,
-      interruptions: 0,
     });
-    expect(score).toBeGreaterThanOrEqual(90);
+    expect(score).toBe(100);
   });
 
   test("habit streak logic is unchanged", () => {

@@ -21,8 +21,6 @@ interface HealthStepProps {
 }
 
 export interface HealthData {
-  skinType?: string;
-  skinConcerns?: string[];
   dietaryRestrictions?: string[];
   allergies?: string[];
   fitnessLevel?: string;
@@ -30,15 +28,6 @@ export interface HealthData {
   sleepBedTime?: string;
   sleepWakeTime?: string;
 }
-
-const skinConcernOptions = [
-  "Acne",
-  "Manchas",
-  "Arrugas",
-  "Poros",
-  "Sequedad",
-  "Rojeces",
-];
 
 const dietOptions = [
   "Vegetariano",
@@ -58,8 +47,6 @@ const goalOptions = [
 ];
 
 export function HealthStep({ modules, onNext, onBack }: HealthStepProps) {
-  const [skinType, setSkinType] = useState("");
-  const [skinConcerns, setSkinConcerns] = useState<string[]>([]);
   const [dietRestrictions, setDietRestrictions] = useState<string[]>([]);
   const [allergies, setAllergies] = useState("");
   const [fitnessLevel, setFitnessLevel] = useState("");
@@ -81,8 +68,6 @@ export function HealthStep({ modules, onNext, onBack }: HealthStepProps) {
 
   const handleNext = () => {
     const data: HealthData = {};
-    if (skinType) data.skinType = skinType;
-    if (skinConcerns.length > 0) data.skinConcerns = skinConcerns;
     if (dietRestrictions.length > 0 && !dietRestrictions.includes("Ninguna"))
       data.dietaryRestrictions = dietRestrictions;
     if (allergies.trim())
@@ -109,49 +94,6 @@ export function HealthStep({ modules, onNext, onBack }: HealthStepProps) {
       </div>
 
       <div className="space-y-6">
-        {/* Skincare */}
-        {modules.includes("skincare") && (
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-wellness-skincare">
-              Skincare
-            </h3>
-            <div className="space-y-2">
-              <Label>Tipo de piel</Label>
-              <Select value={skinType} onValueChange={setSkinType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="oily">Grasa</SelectItem>
-                  <SelectItem value="dry">Seca</SelectItem>
-                  <SelectItem value="combination">Mixta</SelectItem>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="sensitive">Sensible</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Preocupaciones</Label>
-              <div className="flex flex-wrap gap-2">
-                {skinConcernOptions.map((concern) => (
-                  <Badge
-                    key={concern}
-                    variant={
-                      skinConcerns.includes(concern) ? "default" : "outline"
-                    }
-                    className="cursor-pointer"
-                    onClick={() =>
-                      toggleItem(skinConcerns, setSkinConcerns, concern)
-                    }
-                  >
-                    {concern}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Nutrition */}
         {modules.includes("nutrition") && (
           <div className="space-y-3">

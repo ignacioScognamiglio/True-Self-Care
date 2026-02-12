@@ -17,7 +17,6 @@ const ALL_STEPS = ["welcome", "modules", "profile", "health", "plan"] as const;
 
 function needsHealthStep(modules: string[]) {
   return (
-    modules.includes("skincare") ||
     modules.includes("nutrition") ||
     modules.includes("fitness") ||
     modules.includes("sleep") ||
@@ -87,8 +86,6 @@ export default function OnboardingPage() {
         gender: profileData.gender,
         height: profileData.height,
         weight: profileData.weight,
-        skinType: data.skinType,
-        skinConcerns: data.skinConcerns,
         dietaryRestrictions: data.dietaryRestrictions,
         allergies: data.allergies,
         fitnessLevel: data.fitnessLevel,

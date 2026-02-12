@@ -8,7 +8,7 @@ import { getAuthenticatedUser, getAuthenticatedUserOrNull } from "../lib/auth";
 export const getProgressPhotos = query({
   args: {
     type: v.optional(
-      v.union(v.literal("skin"), v.literal("body"), v.literal("food"))
+      v.union(v.literal("body"), v.literal("food"))
     ),
     limit: v.optional(v.number()),
   },
@@ -46,7 +46,7 @@ export const getProgressPhotos = query({
 
 export const getPhotoComparison = query({
   args: {
-    type: v.union(v.literal("skin"), v.literal("body")),
+    type: v.union(v.literal("body"), v.literal("food")),
   },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUserOrNull(ctx);
@@ -263,7 +263,7 @@ export const getModuleTrends = query({
 export const uploadProgressPhoto = mutation({
   args: {
     storageId: v.string(),
-    type: v.union(v.literal("skin"), v.literal("body")),
+    type: v.literal("body"),
   },
   handler: async (ctx, args) => {
     const user = await getAuthenticatedUser(ctx);

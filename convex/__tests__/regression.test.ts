@@ -92,18 +92,15 @@ function calculateDurationMinutes(bedTime: string, wakeTime: string): number {
 function calculateQualityScore(sleep: {
   durationMinutes: number;
   quality: number;
-  interruptions?: number;
 }): number {
   let score = 0;
   const hours = sleep.durationMinutes / 60;
-  if (hours >= 7 && hours <= 9) score += 40;
-  else if (hours >= 6 && hours < 7) score += 30;
-  else if (hours > 9 && hours <= 10) score += 30;
-  else if (hours >= 5 && hours < 6) score += 15;
+  if (hours >= 7 && hours <= 9) score += 50;
+  else if (hours >= 6 && hours < 7) score += 38;
+  else if (hours > 9 && hours <= 10) score += 38;
+  else if (hours >= 5 && hours < 6) score += 20;
   else score += 5;
-  score += sleep.quality * 6;
-  const interruptionPenalty = Math.min(sleep.interruptions ?? 0, 4);
-  score += Math.max(5, 20 - interruptionPenalty * 5);
+  score += sleep.quality * 8;
   score += 10;
   return Math.min(100, Math.max(0, score));
 }
@@ -181,30 +178,27 @@ describe("regression: all modules work independently", () => {
   });
 
   test("sleep quality score in expected ranges", () => {
-    // Excellent: 8h, quality 5, 0 interruptions
+    // Excellent: 8h, quality 5
     const excellent = calculateQualityScore({
       durationMinutes: 480,
       quality: 5,
-      interruptions: 0,
     });
-    expect(excellent).toBeGreaterThanOrEqual(90);
+    expect(excellent).toBe(100);
 
-    // Good: 7h, quality 3, 2 interruptions
+    // Good: 7h, quality 3
     const good = calculateQualityScore({
       durationMinutes: 420,
       quality: 3,
-      interruptions: 2,
     });
-    expect(good).toBeGreaterThanOrEqual(55);
-    expect(good).toBeLessThanOrEqual(80);
+    expect(good).toBeGreaterThanOrEqual(70);
+    expect(good).toBeLessThanOrEqual(90);
 
-    // Bad: 5h, quality 1, 4 interruptions
+    // Bad: 5h, quality 1
     const bad = calculateQualityScore({
       durationMinutes: 300,
       quality: 1,
-      interruptions: 4,
     });
-    expect(bad).toBeLessThan(40);
+    expect(bad).toBeLessThan(45);
   });
 
   test("habit streak logic works", () => {
@@ -231,7 +225,6 @@ describe("regression: data model types are compatible", () => {
       "nutrition",
       "sleep",
       "water",
-      "skincare",
       "weight",
       "habit",
     ];
@@ -244,7 +237,6 @@ describe("regression: data model types are compatible", () => {
       "daily",
       "meal",
       "workout",
-      "skincare_routine",
       "sleep_routine",
       "weekly",
     ];

@@ -179,7 +179,6 @@ export const getWellnessEntriesByType = query({
       v.literal("nutrition"),
       v.literal("sleep"),
       v.literal("water"),
-      v.literal("skincare"),
       v.literal("weight"),
       v.literal("habit")
     ),

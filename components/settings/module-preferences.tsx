@@ -9,11 +9,6 @@ import { Loader2 } from "lucide-react";
 
 const MODULES = [
   {
-    id: "skincare",
-    label: "Skincare",
-    description: "Rutinas de cuidado de piel y seguimiento",
-  },
-  {
     id: "nutrition",
     label: "Nutricion",
     description: "Registro de comidas, macros y planes alimentarios",

@@ -18,14 +18,14 @@ const steps = [
     icon: ClipboardCheck,
     title: "Registra tu dia",
     description:
-      "Registra estado de animo, comidas, ejercicio, sueno, skincare y habitos. Solo toma unos minutos.",
+      "Registra estado de animo, comidas, ejercicio, sueno y habitos. Solo toma unos minutos.",
   },
   {
     num: "02",
     icon: Sparkles,
     title: "La IA conecta los puntos",
     description:
-      "Nuestros agentes analizan patrones entre modulos: como tu sueno afecta tu piel, como el estres afecta tu nutricion.",
+      "Nuestros agentes analizan patrones entre modulos: como tu sueno afecta tu animo, como el estres afecta tu nutricion.",
   },
   {
     num: "03",
@@ -37,7 +37,6 @@ const steps = [
 ];
 
 const moduleIcons = [
-  { icon: Sparkles, color: "text-wellness-skincare" },
   { icon: Apple, color: "text-wellness-nutrition" },
   { icon: Dumbbell, color: "text-wellness-fitness" },
   { icon: Brain, color: "text-wellness-mental" },
@@ -139,7 +138,7 @@ export function HowItWorksSection({ id }: { id?: string }) {
                 >
                   {[
                     "bg-wellness-sleep",
-                    "bg-wellness-skincare",
+                    "bg-wellness-nutrition",
                     "bg-wellness-mental",
                   ].map((color, j) => (
                     <motion.div
@@ -163,7 +162,7 @@ export function HowItWorksSection({ id }: { id?: string }) {
                   className="rounded-lg border bg-card p-3 text-left text-xs text-muted-foreground max-w-[240px] shadow-sm"
                 >
                   <p>
-                    &quot;Tu acne correlaciona con las ultimas 3 noches de mal
+                    &quot;Tu ansiedad correlaciona con las ultimas 3 noches de mal
                     sueno. Prioriza dormir 8h esta semana.&quot;
                   </p>
                 </motion.div>

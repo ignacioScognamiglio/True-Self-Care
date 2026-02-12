@@ -29,8 +29,6 @@ export default defineSchema({
     gender: v.optional(v.string()),
     height: v.optional(v.number()),
     weight: v.optional(v.number()),
-    skinType: v.optional(v.string()),
-    skinConcerns: v.optional(v.array(v.string())),
     dietaryRestrictions: v.optional(v.array(v.string())),
     allergies: v.optional(v.array(v.string())),
     fitnessLevel: v.optional(v.string()),
@@ -56,7 +54,6 @@ export default defineSchema({
       v.literal("nutrition"),
       v.literal("sleep"),
       v.literal("water"),
-      v.literal("skincare"),
       v.literal("weight"),
       v.literal("habit")
     ),
@@ -79,7 +76,6 @@ export default defineSchema({
       v.literal("daily"),
       v.literal("meal"),
       v.literal("workout"),
-      v.literal("skincare_routine"),
       v.literal("sleep_routine"),
       v.literal("weekly"),
       v.literal("challenge")
@@ -116,7 +112,7 @@ export default defineSchema({
   // ═══ PROGRESS PHOTOS ═══
   progressPhotos: defineTable({
     userId: v.id("users"),
-    type: v.union(v.literal("skin"), v.literal("body"), v.literal("food")),
+    type: v.union(v.literal("body"), v.literal("food")),
     storageId: v.string(),
     aiAnalysis: v.optional(v.any()),
     timestamp: v.number(),

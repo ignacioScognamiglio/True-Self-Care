@@ -5,7 +5,7 @@ import { Id } from "../_generated/dataModel";
 
 export const logSleep = createTool({
   description:
-    "Registra las horas de sueno del usuario con calidad e interrupciones",
+    "Registra las horas de sueno del usuario con calidad",
   args: z.object({
     bedTime: z
       .string()
@@ -18,18 +18,12 @@ export const logSleep = createTool({
       .min(1)
       .max(5)
       .describe("Calidad del sueno del 1 al 5"),
-    interruptions: z
-      .number()
-      .min(0)
-      .optional()
-      .describe("Veces que se desperto durante la noche"),
     factors: z
       .array(z.string())
       .optional()
       .describe(
         "Factores que afectaron el sueno: estres, cafeina, alcohol, pantallas, ejercicio_tarde, comida_pesada, ruido, temperatura, dolor, medicacion, meditacion, lectura, musica_relajante"
       ),
-    notes: z.string().optional().describe("Notas adicionales sobre el sueno"),
   }),
   handler: async (ctx, args): Promise<string> => {
     const userId = ctx.userId as Id<"users">;
@@ -39,9 +33,7 @@ export const logSleep = createTool({
         bedTime: args.bedTime,
         wakeTime: args.wakeTime,
         quality: args.quality,
-        interruptions: args.interruptions,
         factors: args.factors,
-        notes: args.notes,
       },
     });
 

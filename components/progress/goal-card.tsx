@@ -35,7 +35,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   nutrition: "bg-orange-500/10 text-orange-700",
   sleep: "bg-indigo-500/10 text-indigo-700",
   mental: "bg-purple-500/10 text-purple-700",
-  skincare: "bg-pink-500/10 text-pink-700",
   habits: "bg-green-500/10 text-green-700",
   weight: "bg-blue-500/10 text-blue-700",
   general: "bg-gray-500/10 text-gray-700",

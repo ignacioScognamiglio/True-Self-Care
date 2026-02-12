@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  Sparkles,
   Apple,
   Dumbbell,
   Brain,
@@ -15,7 +14,6 @@ import { Badge } from "@/components/ui/badge";
 import { ChatDemo } from "./chat-demo";
 
 const moduleIcons = [
-  { icon: Sparkles, label: "Skincare", color: "text-wellness-skincare" },
   { icon: Apple, label: "Nutricion", color: "text-wellness-nutrition" },
   { icon: Dumbbell, label: "Fitness", color: "text-wellness-fitness" },
   { icon: Brain, label: "Salud Mental", color: "text-wellness-mental" },
@@ -67,7 +65,7 @@ export function HeroSection() {
               variants={fadeUp}
               className="text-lg text-muted-foreground max-w-lg"
             >
-              Skincare, nutricion, fitness, salud mental, sueno y habitos —
+              Nutricion, fitness, salud mental, sueno y habitos —
               todos conectados por agentes de IA que entienden como se
               relacionan.
             </motion.p>

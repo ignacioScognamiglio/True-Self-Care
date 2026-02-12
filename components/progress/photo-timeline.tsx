@@ -16,7 +16,6 @@ import { BeforeAfterComparison } from "./before-after-comparison";
 import { Id } from "@/convex/_generated/dataModel";
 
 const TYPE_LABELS: Record<string, string> = {
-  skin: "Piel",
   body: "Cuerpo",
   food: "Comida",
 };
@@ -28,7 +27,7 @@ export function PhotoTimeline() {
     type:
       filter === "all"
         ? undefined
-        : (filter as "skin" | "body" | "food"),
+        : (filter as "body" | "food"),
   });
   const deletePhoto = useMutation(api.functions.progress.deleteProgressPhoto);
 
@@ -69,9 +68,6 @@ export function PhotoTimeline() {
               </TabsTrigger>
               <TabsTrigger value="body" className="flex-1">
                 Cuerpo
-              </TabsTrigger>
-              <TabsTrigger value="skin" className="flex-1">
-                Piel
               </TabsTrigger>
               <TabsTrigger value="food" className="flex-1">
                 Comida

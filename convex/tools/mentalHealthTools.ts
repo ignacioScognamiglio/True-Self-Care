@@ -161,13 +161,13 @@ export const suggestExercise = createTool({
 3. Exhala lentamente por la boca contando hasta 8
 4. Repeti 4 ciclos
 
-Este ejercicio activa el sistema nervioso parasimpatico y reduce la ansiedad. El usuario puede hacerlo en /dashboard/mental/exercises.`,
+Este ejercicio activa el sistema nervioso parasimpatico y reduce la ansiedad. El usuario puede hacerlo en /dashboard/chat.`,
       gratitude: `Ejercicio de gratitud (3 pasos):
 1. Algo pequeno que te hizo sonreir hoy
 2. Una persona que aprecies en tu vida
 3. Algo de ti mismo/a que valores
 
-La gratitud activa circuitos de recompensa y mejora el bienestar. El usuario puede hacerlo en /dashboard/mental/exercises.`,
+La gratitud activa circuitos de recompensa y mejora el bienestar. El usuario puede hacerlo en /dashboard/chat.`,
       reframing: `Ejercicio de reestructuracion cognitiva (CBT):
 1. Describe la situacion que te afecta
 2. Identifica el pensamiento automatico
@@ -177,7 +177,7 @@ La gratitud activa circuitos de recompensa y mejora el bienestar. El usuario pue
 6. Formula un pensamiento alternativo mas equilibrado
 7. Reevalua la intensidad emocional
 
-El usuario puede hacerlo guiado en /dashboard/mental/exercises.`,
+El usuario puede hacerlo guiado en /dashboard/chat.`,
     };
 
     const exercise = exercises[args.type];

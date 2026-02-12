@@ -8,7 +8,6 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -30,30 +29,22 @@ const QUALITY_EMOJIS: Record<number, string> = {
   5: "\uD83D\uDE34",
 };
 
-const NEGATIVE_FACTORS = [
+const SLEEP_FACTORS = [
   { value: "estres", label: "Estres" },
   { value: "cafeina", label: "Cafeina" },
   { value: "alcohol", label: "Alcohol" },
   { value: "pantallas", label: "Pantallas" },
-  { value: "ejercicio_tarde", label: "Ejercicio tarde" },
   { value: "comida_pesada", label: "Comida pesada" },
   { value: "ruido", label: "Ruido" },
-  { value: "temperatura", label: "Temperatura" },
-] as const;
-
-const POSITIVE_FACTORS = [
   { value: "meditacion", label: "Meditacion" },
   { value: "lectura", label: "Lectura" },
-  { value: "musica_relajante", label: "Musica relajante" },
 ] as const;
 
 const sleepSchema = z.object({
   bedTime: z.string().min(1, "La hora de acostarse es obligatoria"),
   wakeTime: z.string().min(1, "La hora de despertar es obligatoria"),
   quality: z.number().min(1).max(5),
-  interruptions: z.number().min(0),
   factors: z.array(z.string()),
-  notes: z.string().max(500).optional(),
 });
 
 type FormData = z.infer<typeof sleepSchema>;
@@ -104,9 +95,7 @@ export function SleepLogForm({
       bedTime: "",
       wakeTime: "",
       quality: 3,
-      interruptions: 0,
       factors: [],
-      notes: "",
       ...defaultValues,
     },
   });
@@ -139,9 +128,7 @@ export function SleepLogForm({
         bedTime: data.bedTime,
         wakeTime: data.wakeTime,
         quality: data.quality,
-        interruptions: data.interruptions || undefined,
         factors: data.factors.length > 0 ? data.factors : undefined,
-        notes: data.notes || undefined,
       },
     });
     toast.success("Sueno registrado");
@@ -196,19 +183,9 @@ export function SleepLogForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="interruptions">Interrupciones</Label>
-        <Input
-          id="interruptions"
-          type="number"
-          min={0}
-          {...register("interruptions", { valueAsNumber: true })}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Factores negativos</Label>
+        <Label>Factores</Label>
         <div className="flex flex-wrap gap-2">
-          {NEGATIVE_FACTORS.map((f) => (
+          {SLEEP_FACTORS.map((f) => (
             <Badge
               key={f.value}
               variant={factors?.includes(f.value) ? "default" : "outline"}
@@ -219,32 +196,6 @@ export function SleepLogForm({
             </Badge>
           ))}
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Factores positivos</Label>
-        <div className="flex flex-wrap gap-2">
-          {POSITIVE_FACTORS.map((f) => (
-            <Badge
-              key={f.value}
-              variant={factors?.includes(f.value) ? "default" : "outline"}
-              className="cursor-pointer select-none"
-              onClick={() => toggleFactor(f.value)}
-            >
-              {f.label}
-            </Badge>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notas (opcional)</Label>
-        <Textarea
-          id="notes"
-          placeholder="Detalles adicionales sobre tu sueno..."
-          rows={2}
-          {...register("notes")}
-        />
       </div>
 
       <div className="flex gap-3 justify-end">

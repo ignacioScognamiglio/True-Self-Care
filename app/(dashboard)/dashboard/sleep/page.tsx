@@ -5,7 +5,6 @@ import dynamic from "next/dynamic";
 import { SleepLogForm } from "@/components/wellness/sleep/sleep-log-form";
 import { SleepStats } from "@/components/wellness/sleep/sleep-stats";
 import { SleepHistory } from "@/components/wellness/sleep/sleep-history";
-import { SleepRoutineView } from "@/components/wellness/sleep/sleep-routine-view";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,10 +59,7 @@ export default function SleepPage() {
 
       <SleepStats />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <SleepChart />
-        <SleepRoutineView />
-      </div>
+      <SleepChart />
 
       <SleepHistory />
     </div>

@@ -47,7 +47,6 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   /* Wellness module colors */
-  --color-wellness-skincare: var(--wellness-skincare);
   --color-wellness-nutrition: var(--wellness-nutrition);
   --color-wellness-fitness: var(--wellness-fitness);
   --color-wellness-mental: var(--wellness-mental);
@@ -113,7 +112,6 @@
   --sidebar-ring: oklch(0.50 0.1 145);
 
   /* Wellness module colors */
-  --wellness-skincare: oklch(0.65 0.15 30);
   --wellness-nutrition: oklch(0.55 0.15 145);
   --wellness-fitness: oklch(0.60 0.16 25);
   --wellness-mental: oklch(0.60 0.12 290);
@@ -177,7 +175,6 @@
   --sidebar-ring: oklch(0.60 0.1 145);
 
   /* Wellness module colors */
-  --wellness-skincare: oklch(0.70 0.15 30);
   --wellness-nutrition: oklch(0.65 0.15 145);
   --wellness-fitness: oklch(0.65 0.16 25);
   --wellness-mental: oklch(0.65 0.12 290);

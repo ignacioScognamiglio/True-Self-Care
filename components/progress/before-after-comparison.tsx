@@ -3,7 +3,6 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -11,7 +10,7 @@ import { es } from "date-fns/locale";
 function ComparisonPanel({
   type,
 }: {
-  type: "skin" | "body";
+  type: "body" | "food";
 }) {
   const comparison = useQuery(api.functions.progress.getPhotoComparison, {
     type,
@@ -30,7 +29,7 @@ function ComparisonPanel({
       <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
         <ImageIcon className="size-8" />
         <p className="text-sm">
-          Necesitas al menos 2 fotos de {type === "skin" ? "piel" : "cuerpo"} para comparar
+          Necesitas al menos 2 fotos de cuerpo para comparar
         </p>
       </div>
     );
@@ -92,22 +91,7 @@ export function BeforeAfterComparison() {
         <CardTitle className="text-base">Comparacion antes/despues</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="body">
-          <TabsList className="w-full">
-            <TabsTrigger value="body" className="flex-1">
-              Cuerpo
-            </TabsTrigger>
-            <TabsTrigger value="skin" className="flex-1">
-              Piel
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="body" className="mt-4">
-            <ComparisonPanel type="body" />
-          </TabsContent>
-          <TabsContent value="skin" className="mt-4">
-            <ComparisonPanel type="skin" />
-          </TabsContent>
-        </Tabs>
+        <ComparisonPanel type="body" />
       </CardContent>
     </Card>
   );

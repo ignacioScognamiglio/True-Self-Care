@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Sparkles,
   Apple,
   Dumbbell,
   Brain,
@@ -23,14 +22,6 @@ const modules: {
   title: string;
   description: string;
 }[] = [
-  {
-    id: "skincare",
-    icon: Sparkles,
-    color: "text-wellness-skincare",
-    bg: "bg-wellness-skincare/15",
-    title: "Skincare",
-    description: "Rutinas y analisis de piel con IA",
-  },
   {
     id: "nutrition",
     icon: Apple,

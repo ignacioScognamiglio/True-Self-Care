@@ -4,62 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "motion/react";
 import { Zap, Check } from "lucide-react";
 
-// ═══ Skincare: Face silhouette with pulsing points ═══
-export function SkincareAnimation() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true });
-
-  const points = [
-    { cx: 64, cy: 30, label: "Frente" },
-    { cx: 45, cy: 55, label: "Mejilla" },
-    { cx: 83, cy: 55, label: "Mejilla" },
-    { cx: 64, cy: 75, label: "Menton" },
-  ];
-
-  return (
-    <div ref={ref} className="flex items-center justify-center h-32">
-      <svg viewBox="0 0 128 100" className="w-32 h-24">
-        {/* Face outline */}
-        <ellipse
-          cx="64"
-          cy="52"
-          rx="30"
-          ry="38"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          className="text-wellness-skincare/30"
-        />
-        {/* Scan points */}
-        {points.map((p, i) => (
-          <motion.circle
-            key={i}
-            cx={p.cx}
-            cy={p.cy}
-            r="4"
-            className="fill-wellness-skincare"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={
-              inView
-                ? {
-                    opacity: [0, 1, 0.6, 1],
-                    scale: [0, 1.3, 1, 1],
-                  }
-                : {}
-            }
-            transition={{
-              delay: i * 0.3,
-              duration: 0.6,
-              repeat: Infinity,
-              repeatDelay: 2,
-            }}
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
 // ═══ Nutrition: Donut chart with calorie counter ═══
 export function NutritionAnimation() {
   const ref = useRef<HTMLDivElement>(null);
