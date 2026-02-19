@@ -3,9 +3,8 @@ import { ConvexHttpClient } from "convex/browser";
 import { auth } from "@clerk/nextjs/server";
 import { api } from "@/convex/_generated/api";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function GET(request: NextRequest) {
+  const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
   const baseUrl = process.env.NEXT_PUBLIC_URL ?? "http://localhost:3001";
   const code = request.nextUrl.searchParams.get("code");
   const error = request.nextUrl.searchParams.get("error");
